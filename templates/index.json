@@ -1,0 +1,302 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "eg_hero_video_Xp3VBx": {
+      "type": "eg-hero-video",
+      "name": "EG Hero Video",
+      "settings": {
+        "video": "shopify://files/videos/Generated Video July 20, 2026 - 5_56PM.mp4",
+        "poster": "shopify://shop_images/eugenia-grace-hero-jewelry-editorial.png",
+        "eyebrow": "",
+        "heading": "",
+        "cta_label": "Discover",
+        "cta_url": "",
+        "tone": "light",
+        "height": 100,
+        "frame": 6
+      }
+    },
+    "eg_icons_slider_hAd8BJ": {
+      "type": "eg-icons-slider",
+      "blocks": {
+        "card_FEgGef": {
+          "type": "card",
+          "settings": {
+            "label": "Collection name",
+            "link": ""
+          }
+        },
+        "card_nFkPfp": {
+          "type": "card",
+          "settings": {
+            "label": "Collection name",
+            "link": ""
+          }
+        },
+        "card_wGyBXT": {
+          "type": "card",
+          "settings": {
+            "label": "Collection name",
+            "link": ""
+          }
+        },
+        "card_4na6nM": {
+          "type": "card",
+          "settings": {
+            "label": "Collection name",
+            "link": ""
+          }
+        },
+        "card_FpT8YC": {
+          "type": "card",
+          "settings": {
+            "label": "Collection name",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "card_FEgGef",
+        "card_nFkPfp",
+        "card_wGyBXT",
+        "card_4na6nM",
+        "card_FpT8YC"
+      ],
+      "name": "EG Icons Slider",
+      "settings": {
+        "title": "The Eugenia Grace Icons",
+        "ratio": "3 / 4",
+        "hover_zoom": true,
+        "pad_top": 8,
+        "pad_bottom": 8
+      }
+    },
+    "eg_collection_tiles_aALEjc": {
+      "type": "eg-collection-tiles",
+      "blocks": {
+        "col_8NttUP": {
+          "type": "col",
+          "settings": {
+            "collection": "home-decor",
+            "custom_image": "shopify://shop_images/enis-yavuz-mggk-X73guM-unsplash.jpg",
+            "label_override": ""
+          }
+        },
+        "col_fhbLGC": {
+          "type": "col",
+          "settings": {
+            "collection": "fine-art",
+            "custom_image": "shopify://shop_images/mohammad-hassan-taheri-UlHAcKtqPB0-unsplash.jpg",
+            "label_override": ""
+          }
+        },
+        "col_mG6H38": {
+          "type": "col",
+          "settings": {
+            "collection": "bridal",
+            "custom_image": "shopify://shop_images/bailey-burton-rhmfkHvPA4w-unsplash.jpg",
+            "label_override": ""
+          }
+        }
+      },
+      "block_order": [
+        "col_8NttUP",
+        "col_fhbLGC",
+        "col_mG6H38"
+      ],
+      "disabled": true,
+      "name": "EG Collection Tiles",
+      "settings": {
+        "heading": ""
+      }
+    },
+    "eg_media_duo_mFV8LJ": {
+      "type": "eg-media-duo",
+      "blocks": {
+        "tile_VHGQMB": {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/tahlia-doyle-e_vZmriImrE-unsplash.jpg",
+            "eyebrow": "",
+            "heading": "",
+            "cta_label": "Discover",
+            "link": "",
+            "tone": "light"
+          }
+        },
+        "tile_mhxDn6": {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/woman-poses-in-dark-room.jpg",
+            "eyebrow": "",
+            "heading": "",
+            "cta_label": "Discover",
+            "link": "",
+            "tone": "light"
+          }
+        }
+      },
+      "block_order": [
+        "tile_VHGQMB",
+        "tile_mhxDn6"
+      ],
+      "name": "EG Media Duo",
+      "settings": {
+        "ratio": "4 / 5"
+      }
+    },
+    "eg_the_edit_LUVHeW": {
+      "type": "eg-the-edit",
+      "blocks": {
+        "product_tqWCdQ": {
+          "type": "product",
+          "settings": {
+            "product": "cursus-bracelet-in-olive-green",
+            "caption": ""
+          }
+        },
+        "product_hzwMET": {
+          "type": "product",
+          "settings": {
+            "product": "cursus-bracelet-in-sand-white",
+            "caption": ""
+          }
+        },
+        "product_MMVTFj": {
+          "type": "product",
+          "settings": {
+            "product": "cursus-bracelet-in-walnut-brown",
+            "caption": ""
+          }
+        }
+      },
+      "block_order": [
+        "product_tqWCdQ",
+        "product_hzwMET",
+        "product_MMVTFj"
+      ],
+      "name": "EG The Edit",
+      "settings": {
+        "heading": "The Jewelry Edit",
+        "banner_title": "Collection Name",
+        "banner_link_label": "Explore Jewelry Collection",
+        "banner_link": "",
+        "banner_ratio": "21 / 9",
+        "show_price": true,
+        "max_images": 4,
+        "dot_position": "below",
+        "bg": "#ffffff",
+        "pad_top": 8,
+        "pad_bottom": 8
+      }
+    },
+    "eg_hero_video_PCcz6Y": {
+      "type": "eg-hero-video",
+      "name": "EG Hero Video",
+      "settings": {
+        "video": "shopify://files/videos/EGrace video (end-to-end).mov",
+        "eyebrow": "",
+        "heading": "",
+        "cta_label": "Discover",
+        "cta_url": "",
+        "tone": "light",
+        "height": 90,
+        "frame": 6
+      }
+    },
+    "eg_artisan_products_mcp9Fp": {
+      "type": "eg-artisan-products",
+      "blocks": {
+        "product_CCy7C3": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "show_price": true
+          }
+        },
+        "product_mqRrDk": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "show_price": true
+          }
+        },
+        "product_w94rcP": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "show_price": true
+          }
+        }
+      },
+      "block_order": [
+        "product_CCy7C3",
+        "product_mqRrDk",
+        "product_w94rcP"
+      ],
+      "name": "EG Artisan Products",
+      "settings": {
+        "eyebrow": "From the Studio",
+        "heading": "Pieces by this artisan",
+        "ratio": "3 / 4",
+        "text_align": "center",
+        "link_label": "View all pieces",
+        "link_url": "",
+        "bg": "#ffffff",
+        "pad_top": 8,
+        "pad_bottom": 10
+      }
+    },
+    "eg_editorial_pair_RYF64g": {
+      "type": "closing-statemnet",
+      "name": "EG Editorial Pair",
+      "settings": {
+        "eyebrow": "The Maison",
+        "heading": "Made by hand, kept for a lifetime",
+        "body": "<p>Every piece in our collection is made by an independent studio, vetted for material mastery and singular craftsmanship.</p>",
+        "link_label": "Discover our artisans",
+        "link_url": "",
+        "bg": "#ffffff",
+        "pad_top": 9,
+        "pad_bottom": 9
+      }
+    },
+    "eg_newsletter_VPx7PN": {
+      "type": "eg-newsletter",
+      "name": "EG Newsletter",
+      "settings": {
+        "quote": "True luxury is discovering something extraordinary — and knowing there will never be another quite like it.",
+        "attribution": "Eugenia Grace",
+        "show_form": true,
+        "placeholder": "Email address",
+        "button_label": "Join",
+        "success_message": "Thank you. We'll be in touch.",
+        "link_label": "Read the Journal",
+        "link_url": "",
+        "bg": "#ffffff",
+        "text_color": "#1a1a1a",
+        "pad_top": 9,
+        "pad_bottom": 9
+      }
+    }
+  },
+  "order": [
+    "eg_hero_video_Xp3VBx",
+    "eg_icons_slider_hAd8BJ",
+    "eg_collection_tiles_aALEjc",
+    "eg_media_duo_mFV8LJ",
+    "eg_the_edit_LUVHeW",
+    "eg_hero_video_PCcz6Y",
+    "eg_artisan_products_mcp9Fp",
+    "eg_editorial_pair_RYF64g",
+    "eg_newsletter_VPx7PN"
+  ]
+}

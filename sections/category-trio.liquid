@@ -1,0 +1,146 @@
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="eg-trio section-{{ section.id }}-padding">
+    <div class="eg-trio__inner page-width">
+      <div class="eg-trio__grid">
+        {%- for block in section.blocks -%}
+          <a href="{{ block.settings.link | default: '#' }}" class="eg-trio__card" {{ block.shopify_attributes }}>
+            <div class="eg-trio__media">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 900 | image_tag:
+                  loading: 'lazy',
+                  widths: '400, 600, 800, 900',
+                  sizes: '(min-width: 990px) 30vw, 90vw',
+                  alt: block.settings.title | default: '' | escape
+                }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+            <div class="eg-trio__body">
+              {%- if block.settings.title != blank -%}
+                <h3 class="eg-trio__title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              {%- if block.settings.subtitle != blank -%}
+                <p class="eg-trio__subtitle">{{ block.settings.subtitle }}</p>
+              {%- endif -%}
+              {%- if block.settings.cta_label != blank -%}
+                <span class="eg-trio__link">{{ block.settings.cta_label }}</span>
+              {%- endif -%}
+            </div>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .eg-trio__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .eg-trio__card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: rgb(var(--color-foreground));
+    transition: opacity 0.3s ease;
+  }
+  .eg-trio__card:hover { opacity: 0.88; }
+
+  .eg-trio__media {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .eg-trio__media img,
+  .eg-trio__media svg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.9s cubic-bezier(.2,.7,.2,1);
+  }
+  .eg-trio__card:hover .eg-trio__media img { transform: scale(1.03); }
+
+  .eg-trio__title {
+    font-family: var(--font-heading-family);
+    font-weight: 300;
+    font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+    letter-spacing: 0;
+    margin: 0 0 0.4rem;
+  }
+
+  .eg-trio__subtitle {
+    font-family: var(--font-heading-family);
+    font-style: italic;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin: 0 0 0.65rem;
+  }
+
+  .eg-trio__link {
+    font-family: var(--font-body-family);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.25rem;
+    align-self: flex-start;
+  }
+
+  @media screen and (max-width: 749px) {
+    .eg-trio__grid { grid-template-columns: 1fr; gap: 2rem; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Category Trio",
+  "tag": "section",
+  "class": "section section-eg-trio",
+  "max_blocks": 3,
+  "settings": [
+    { "type": "header", "content": "Appearance" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category",
+      "limit": 3,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Category image (landscape 4:3)" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Category Name" },
+        { "type": "text", "id": "subtitle", "label": "Italic subtitle", "default": "A line of refined poetry" },
+        { "type": "text", "id": "cta_label", "label": "Link label", "default": "Shop pre-fall" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category Trio",
+      "blocks": [
+        { "type": "category" }, { "type": "category" }, { "type": "category" }
+      ]
+    }
+  ]
+}
+{% endschema %}

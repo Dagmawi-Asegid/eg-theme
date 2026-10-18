@@ -1,0 +1,1339 @@
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Design System v3 · stark white / edge-to-edge
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --eg-white: #FFFFFF;
+  --eg-ink: #111111;
+  --eg-grey: #6E6E6E;
+  --eg-aubergine: #5B2545;
+  --eg-hairline: rgba(17,17,17,0.12);
+
+  --eg-serif: 'Cormorant Garamond', Georgia, serif;
+  --eg-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --eg-display: clamp(3.25rem, 6vw, 6rem);
+  --eg-h2: clamp(2.4rem, 4vw, 4rem);
+  --eg-h3: clamp(1.6rem, 2.2vw, 2.2rem);
+  --eg-body: clamp(1.05rem, 1.15vw, 1.25rem);
+  --eg-eyebrow: 0.85rem;
+
+  --eg-gap: 4px;                 /* gutter between edge-to-edge tiles */
+  --eg-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ── Canvas ── */
+body { background: var(--eg-white) !important; color: var(--eg-ink); }
+.page-width { max-width: 100% !important; padding: 0 !important; }
+
+/* ── Shared brand type classes (ALL sections use these) ── */
+.eg-display {
+  font-family: var(--eg-serif); font-weight: 300;
+  font-size: var(--eg-display); line-height: 1.02;
+  letter-spacing: 0.01em; color: inherit; margin: 0;
+}
+.eg-h2 {
+  font-family: var(--eg-serif); font-weight: 300;
+  font-size: var(--eg-h2); line-height: 1.08; margin: 0;
+}
+.eg-h3 {
+  font-family: var(--eg-serif); font-weight: 400;
+  font-size: var(--eg-h3); line-height: 1.15; margin: 0;
+}
+.eg-eyebrow {
+  font-family: var(--eg-sans); font-weight: 500;
+  font-size: var(--eg-eyebrow); letter-spacing: 0.3em;
+  text-transform: uppercase; margin: 0;
+}
+.eg-body {
+  font-family: var(--eg-sans); font-weight: 400;
+  font-size: var(--eg-body); line-height: 1.65; margin: 0;
+}
+.eg-link {
+  font-family: var(--eg-sans); font-weight: 500;
+  font-size: 0.95rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: inherit; text-decoration: none;
+  border-bottom: 1px solid currentColor; padding-bottom: 0.35rem;
+  transition: opacity 0.5s var(--eg-ease);
+}
+.eg-link:hover { opacity: 0.55; }
+
+h1,h2,h3,h4,.h0,.h1,.h2,.h3 { font-family: var(--eg-serif) !important; font-weight: 300 !important; }
+
+/* ── Motion: scroll reveal ── */
+.eg-reveal {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity 1.1s var(--eg-ease), transform 1.1s var(--eg-ease);
+}
+.eg-reveal.eg-inview { opacity: 1; transform: translateY(0); }
+.shopify-design-mode .eg-reveal { opacity: 1 !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .eg-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ── Motion: parallax frame ── */
+.eg-parallax { overflow: hidden; position: relative; }
+.eg-parallax > img, .eg-parallax > video {
+  width: 100%; height: 116%; object-fit: cover;
+  position: absolute; top: -8%; left: 0;
+  will-change: transform;
+}
+
+/* ── Motion: slow hover ── */
+.eg-hover-zoom { overflow: hidden; }
+.eg-hover-zoom img {
+  transition: transform 1.6s var(--eg-ease);
+}
+.eg-hover-zoom:hover img { transform: scale(1.03); }
+
+/* ── Page load ── */
+@keyframes egPageIn { from { opacity: 0; } to { opacity: 1; } }
+main#MainContent { animation: egPageIn 0.9s var(--eg-ease) both; }
+
+/* ── Announcement bar ── */
+.announcement-bar, .utility-bar {
+  background: var(--eg-ink) !important;
+}
+.announcement-bar__message, .announcement-bar p, .announcement-bar a {
+  color: #FFF !important; font-family: var(--eg-sans) !important;
+  font-size: 0.72rem !important; letter-spacing: 0.3em !important;
+  text-transform: uppercase !important; font-weight: 500 !important;
+}
+
+/* ── Header: drawer left · logo center · icons right · clean ── */
+.header {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center;
+  padding: 1.1rem 2rem !important;
+  background: var(--eg-white);
+}
+header-drawer { grid-column: 1; justify-self: start; display: flex !important; align-items: center; gap: 1rem; margin: 0 !important; }
+header-drawer::after {
+  content: "THE LUXURY OF HANDMADE\00AE";
+  font-family: var(--eg-sans); font-size: 0.68rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--eg-ink); opacity: 0.75; white-space: nowrap;
+}
+.header__heading, .header__heading-link { grid-column: 2; margin: 0 auto !important; text-align: center; }
+.header__heading-logo-wrapper { width: clamp(150px, 15vw, 210px) !important; margin: 0 auto; }
+.header__heading-logo-wrapper img { width: 100% !important; height: auto !important; }
+.header__icons { grid-column: 3; justify-self: end; display: flex; gap: 0.4rem; }
+.header__icons .header__icon svg { width: 21px !important; height: 21px !important; stroke-width: 1 !important; }
+.header-wrapper { border-bottom: 0.5px solid var(--eg-hairline) !important; }
+.cart-count-bubble { background: var(--eg-aubergine) !important; }
+
+/* ── Drawer ── */
+.menu-drawer { background: var(--eg-white) !important; padding: 2.5rem 2.25rem !important; }
+.menu-drawer__menu-item {
+  font-family: var(--eg-sans) !important; font-size: 1rem !important;
+  letter-spacing: 0.2em !important; text-transform: uppercase !important;
+  font-weight: 400 !important; padding: 1.15rem 0 !important;
+  border-bottom: 0.5px solid var(--eg-hairline) !important;
+}
+.menu-drawer__menu-item:hover { background: transparent !important; text-decoration: underline !important; text-underline-offset: 5px !important; }
+.menu-drawer__navigation { border: none !important; }
+
+/* ── Strip Dawn card chrome globally ── */
+.card, .card-wrapper, .card__inner, .multicolumn-card {
+  border: none !important; box-shadow: none !important;
+  background: transparent !important; border-radius: 0 !important;
+}
+.card__content { padding-left: 0 !important; padding-right: 0 !important; }
+.card__heading, .card__heading a { font-family: var(--eg-serif) !important; font-weight: 400 !important; }
+
+/* ── Mobile ── */
+@media screen and (max-width: 989px) {
+  .header { padding: 0.85rem 1.1rem !important; }
+  header-drawer::after { display: none; }
+  .header__heading-logo-wrapper { width: clamp(120px, 34vw, 160px) !important; }
+  :root { --eg-gap: 3px; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Product page (Dawn native, restyled)
+   ════════════════════════════════════════════════════════════ */
+
+.product { --eg-pdp-ink: #1A1A1A; }
+
+/* Layout: give gallery + info real width, tighten gutter */
+.product__info-wrapper { padding-left: clamp(2rem, 4vw, 5rem) !important; }
+@media screen and (min-width: 990px) {
+  .product--large .product__info-wrapper { max-width: 42% !important; }
+}
+
+/* Title */
+.product__title,
+.product__title h1 {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  font-size: clamp(2rem, 3vw, 2.9rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.01em !important;
+  color: var(--eg-pdp-ink) !important;
+  text-transform: uppercase !important;
+}
+
+/* Vendor / artisan line */
+.product__text.caption-with-letter-spacing,
+.product .product__vendor,
+a.product__text {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.28em !important;
+  text-transform: uppercase !important;
+  color: #6E6E6E !important;
+}
+
+/* Price */
+.product .price,
+.product .price__regular .price-item {
+  font-family: var(--eg-sans) !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.04em !important;
+  color: var(--eg-pdp-ink) !important;
+}
+
+/* Buttons — sharp, ink, small-caps */
+.product-form__buttons .button,
+.product-form__submit,
+.shopify-payment-button__button {
+  border-radius: 0 !important;
+  font-family: var(--eg-sans) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  min-height: 56px !important;
+}
+.product-form__submit {
+  background: var(--eg-pdp-ink) !important;
+  color: #FFF !important;
+  border: 1px solid var(--eg-pdp-ink) !important;
+}
+.shopify-payment-button__button--unbranded {
+  background: transparent !important;
+  color: var(--eg-pdp-ink) !important;
+  border: 1px solid var(--eg-pdp-ink) !important;
+}
+
+/* Quantity + inputs sharp */
+.quantity, .quantity__input, .quantity__button { border-radius: 0 !important; }
+.quantity { border: 1px solid #E5E5E5 !important; }
+
+/* Description */
+.product__description {
+  font-family: var(--eg-sans) !important;
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  color: #3a3a3a !important;
+}
+
+/* Collapsible rows (Size & Fit, Material...) — hairline, sharp */
+.product .accordion,
+.product details {
+  border-top: 1px solid #E5E5E5 !important;
+  border-bottom: 1px solid #E5E5E5 !important;
+  border-radius: 0 !important;
+}
+.product .accordion__title,
+.product summary .h4 {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  color: var(--eg-pdp-ink) !important;
+}
+
+/* Variant pickers — text pills, sharp, no color swatches */
+.product-form__input .form__label {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: #6E6E6E !important;
+}
+fieldset .product-form__input input[type='radio'] + label,
+.variant-pills .product-form__input label {
+  border-radius: 0 !important;
+  border: 1px solid #E5E5E5 !important;
+  font-family: var(--eg-sans) !important;
+  letter-spacing: 0.1em !important;
+}
+.product-form__input--swatch .swatch { border-radius: 0 !important; }
+
+/* Thumbnails sharp */
+.thumbnail, .product__media-item img, .product__modal-opener { border-radius: 0 !important; }
+.thumbnail { border: 1px solid transparent !important; }
+.thumbnail[aria-current] { border-color: var(--eg-pdp-ink) !important; }
+
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Collection filter sidebar (Tiffany minimal)
+   ════════════════════════════════════════════════════════════ */
+
+.facets, .facets__form { font-family: var(--eg-sans) !important; }
+.facets__summary, .facets summary {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: #1A1A1A !important;
+  padding: 1.1rem 0 !important;
+}
+.facets__disclosure, .facets details {
+  border-bottom: 1px solid #E5E5E5 !important;
+  border-radius: 0 !important;
+}
+.facets__display, .facets-wrap { border-radius: 0 !important; }
+.facet-checkbox, .facets__label {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.02em !important;
+  color: #1A1A1A !important;
+  text-transform: none !important;
+}
+/* Kill color swatches — force text only */
+.facets .swatch, .facets__color-swatch, .swatch-input__input + label .swatch {
+  display: none !important;
+}
+.facet-checkbox input[type='checkbox'] { border-radius: 0 !important; }
+.facets__price input { border-radius: 0 !important; border-color: #E5E5E5 !important; }
+
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Standard page padding (collection, search, cart, etc.)
+   Full-bleed EG sections stay edge-to-edge; text pages get gutters
+   ════════════════════════════════════════════════════════════ */
+
+/* Re-add horizontal padding on standard pages that need it */
+.collection .page-width,
+.template-search .page-width,
+.template-cart .page-width,
+.template-list-collections .page-width,
+main .page-width:not(.egv__content):not(.egduo__grid):not(.egcol__grid) {
+  padding-left: clamp(1.5rem, 5vw, 5rem) !important;
+  padding-right: clamp(1.5rem, 5vw, 5rem) !important;
+  max-width: 1600px !important;
+  margin: 0 auto !important;
+}
+
+/* Collection page heading */
+
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Brand font enforcement across all collection/
+   listing/banner headings and body text
+   ════════════════════════════════════════════════════════════ */
+
+/* All collection + banner + list headings → brand serif */
+.collection-hero__title,
+.collection__title .title,
+.collection__title,
+.banner__heading,
+.collection-list-title,
+.title-wrapper .title,
+.main-page-title,
+.template-search .title,
+.template-list-collections .title,
+.card__heading,
+.card__heading a,
+.collection-list__title-wrapper .h2,
+.section-header__title {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.01em !important;
+  color: #1A1A1A !important;
+}
+
+/* Collection descriptions / subtext → brand sans */
+.collection-hero__description,
+.collection__description,
+.banner__text,
+.rte,
+.collection-list__item .card__information,
+.title-wrapper + .rte {
+  font-family: var(--eg-sans) !important;
+  color: #3A3A3A !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Eyebrow-style labels (counts, "Filter:", "Sort by") → brand sans */
+.facets__heading,
+.product-count,
+.product-count__text,
+.facet-filters__label,
+.facet-filters__sort,
+.collection-hero__description p {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.14em !important;
+  color: #6E6E6E !important;
+}
+
+/* Collection banner image overlay heading (if a collection has a banner) */
+.collection-hero--with-image .collection-hero__title {
+  font-size: clamp(2.5rem, 5vw, 5rem) !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 16px rgba(0,0,0,0.3) !important;
+}
+
+/* Blog / article headings, in case a journal exists → brand serif */
+.article-template__title,
+.blog-articles__title,
+.article-card__title,
+.blog__title {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  color: #1A1A1A !important;
+}
+
+/* Cart + account page titles → brand serif */
+.cart__heading,
+.main-cart-items .title,
+.customer h1,
+.customer .title,
+.login .title,
+.account .title {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  color: #1A1A1A !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Footer v2 (LV-style, multi-column, logo)
+   ════════════════════════════════════════════════════════════ */
+
+.footer {
+  background: #FFFFFF !important;
+  border-top: 1px solid #E5E5E5 !important;
+  padding-top: clamp(4rem, 7vw, 7rem) !important;
+}
+
+/* Content columns — generous, editorial spacing */
+.footer__content-top {
+  padding-bottom: clamp(3.5rem, 6vw, 6rem) !important;
+  gap: clamp(2rem, 4vw, 4rem) !important;
+  max-width: 1600px !important;
+  margin: 0 auto !important;
+  padding-left: clamp(1.5rem, 4vw, 4rem) !important;
+  padding-right: clamp(1.5rem, 4vw, 4rem) !important;
+}
+
+/* Logo block — larger, left-anchored like LV */
+.footer-block--newsletter,
+.footer-block.footer-block--image,
+.footer__content-top .footer-block:first-child img {
+  max-width: 220px !important;
+}
+.footer .footer-block__image img {
+  border-radius: 0 !important;
+  filter: none !important;
+}
+
+/* Column headings — serif, refined, uppercase-tracked feel */
+.footer-block__heading {
+  font-family: var(--eg-serif) !important;
+  font-weight: 400 !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #1A1A1A !important;
+  margin-bottom: 1.75rem !important;
+}
+
+/* Links — clean sans, muted, airy */
+.footer-block__details-content a,
+.footer-block__details-content .list-menu__item,
+.footer__list-social a {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.04em !important;
+  color: #6E6E6E !important;
+  text-decoration: none !important;
+  transition: color 0.4s var(--eg-ease) !important;
+  line-height: 1 !important;
+}
+.footer-block__details-content li { margin-bottom: 0.95rem !important; }
+.footer-block__details-content a:hover { color: #1A1A1A !important; }
+
+/* Body/address text */
+.footer-block__details-content .rte,
+.footer-block__details-content p {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  color: #6E6E6E !important;
+  line-height: 1.8 !important;
+}
+
+/* Newsletter — sharp, minimal, LV-style */
+.footer-block__newsletter { align-items: flex-start !important; }
+.footer-block__heading + .footer__newsletter,
+.footer-block__newsletter .newsletter-form__field-wrapper { max-width: 380px !important; }
+.footer-block__newsletter .field__input,
+.footer__newsletter input {
+  border-radius: 0 !important;
+  border: 1px solid #C9C9C9 !important;
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.04em !important;
+  background: transparent !important;
+}
+.footer .newsletter-form__button { border-radius: 0 !important; }
+.footer .newsletter-form__button svg { width: 18px !important; }
+
+/* Social icons row */
+.footer__list-social { gap: 1.25rem !important; margin-top: 1rem !important; }
+.footer__list-social .list-social__link svg { width: 17px !important; height: 17px !important; }
+
+/* Bottom bar — copyright + payment, refined */
+.footer__content-bottom {
+  border-top: 1px solid #E5E5E5 !important;
+  padding: 2.25rem clamp(1.5rem, 4vw, 4rem) !important;
+  max-width: 1600px !important;
+  margin: 0 auto !important;
+}
+.footer__copyright,
+.copyright__content,
+.footer__content-bottom small,
+.footer__content-bottom a {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #9A9A9A !important;
+}
+.footer img { border-radius: 0 !important; }
+/* ════════════════════════════════════════════════════════════
+   EUGENIA GRACE — Collection + Product page type consistency
+   ════════════════════════════════════════════════════════════ */
+
+/* ---- Collection page heading + gutters ---- */
+.collection .collection-hero,
+.template-collection .title-wrapper-with-link {
+  padding-left: clamp(1.5rem, 4vw, 4rem) !important;
+  padding-right: clamp(1.5rem, 4vw, 4rem) !important;
+}
+.collection__title .title,
+.collection-hero__title,
+.template-collection .collection__title,
+.template-list-collections .title {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  font-size: clamp(2.5rem, 4vw, 4rem) !important;
+  letter-spacing: 0.01em !important;
+  color: #1A1A1A !important;
+  text-transform: none !important;
+}
+
+/* ---- FIX the filter bar overlap (AVAILABILITY / PRICE cramming) ---- */
+.facets__form,
+.facets-vertical .facets__form {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 2.5rem !important;
+  padding-left: clamp(1.5rem, 4vw, 4rem) !important;
+}
+.facets__wrapper { gap: 2.5rem !important; }
+.facets__disclosure,
+.disclosure-has-popup {
+  margin-right: 0 !important;
+  white-space: nowrap !important;
+}
+.facets__summary, .facets summary {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: #1A1A1A !important;
+  padding: 0.4rem 0 !important;
+  gap: 0.6rem !important;
+}
+.facets__label, .facet-filters__label, .facets__heading {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.14em !important;
+  color: #6E6E6E !important;
+}
+/* Kill any color swatches in filters (Rosemaria: no swatches) */
+.facets .swatch, .facets__color-swatch, .facet-checkbox .swatch { display: none !important; }
+.facet-checkbox input[type='checkbox'] { border-radius: 0 !important; }
+
+/* ---- Sort-by bar ---- */
+.facet-filters__sort,
+.product-count__text,
+.product-count {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.1em !important;
+  color: #6E6E6E !important;
+}
+
+/* ---- Product cards on collection grid ---- */
+.card__heading, .card__heading a {
+  font-family: var(--eg-serif) !important;
+  font-weight: 400 !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.01em !important;
+  color: #1A1A1A !important;
+}
+.card-information .price, .price__regular .price-item {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.03em !important;
+  color: #1A1A1A !important;
+}
+.badge {
+  border-radius: 0 !important;
+  background: #1A1A1A !important;
+  color: #FFF !important;
+  font-family: var(--eg-sans) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+}
+.product-grid { gap: clamp(1.5rem, 3vw, 3rem) !important; }
+
+/* ════════════════════════════════════════════════════════════
+   PRODUCT PAGE — buy box on brand system
+   ════════════════════════════════════════════════════════════ */
+
+.product__info-wrapper { padding-left: clamp(2rem, 4vw, 5rem) !important; }
+
+.product__title, .product__title h1 {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  font-size: clamp(2.2rem, 3.2vw, 3.2rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.01em !important;
+  color: #1A1A1A !important;
+  text-transform: none !important;
+}
+.product .product__text.caption-with-letter-spacing,
+.product__vendor, a.product__text {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.26em !important;
+  text-transform: uppercase !important;
+  color: #6E6E6E !important;
+}
+.product .price, .product .price__regular .price-item {
+  font-family: var(--eg-sans) !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.03em !important;
+  color: #1A1A1A !important;
+}
+.product__description {
+  font-family: var(--eg-sans) !important;
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  color: #3A3A3A !important;
+}
+
+/* Buttons — sharp, ink */
+.product-form__submit,
+.product-form__buttons .button {
+  border-radius: 0 !important;
+  font-family: var(--eg-sans) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  min-height: 56px !important;
+}
+.product-form__submit {
+  background: #1A1A1A !important; color: #FFF !important;
+  border: 1px solid #1A1A1A !important;
+}
+.shopify-payment-button__button--unbranded {
+  background: transparent !important; color: #1A1A1A !important;
+  border: 1px solid #1A1A1A !important; border-radius: 0 !important;
+}
+.quantity, .quantity__input, .quantity__button { border-radius: 0 !important; }
+.quantity { border: 1px solid #E5E5E5 !important; }
+
+/* Accordion rows (Size & Fit / Color / Material) — hairline */
+.product .accordion, .product details {
+  border-top: 1px solid #E5E5E5 !important;
+  border-bottom: 1px solid #E5E5E5 !important;
+  border-radius: 0 !important;
+}
+.product .accordion__title, .product summary .h4 {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  color: #1A1A1A !important;
+}
+
+/* Variant pickers — sharp, no swatches */
+.product-form__input .form__label {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: #6E6E6E !important;
+}
+.variant-pills .product-form__input label,
+fieldset .product-form__input input[type='radio'] + label {
+  border-radius: 0 !important;
+  border: 1px solid #E5E5E5 !important;
+  font-family: var(--eg-sans) !important;
+  letter-spacing: 0.1em !important;
+}
+.thumbnail, .product__media-item img { border-radius: 0 !important; }
+.thumbnail[aria-current] { border: 1px solid #1A1A1A !important; }
+
+/* ==========================================================================
+   EG — Native facet restyle v2 (Search & Discovery + Dawn drawer layout)
+   Replaces the previous EG facet block at the end of eugenia-grace.css.
+   Delete the old block entirely before pasting this.
+   ========================================================================== */
+
+/* --- The bar above the grid ------------------------------------------------ */
+
+.facets-container {
+  padding: 1.6rem clamp(1.5rem, 5vw, 5rem);
+  border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14));
+  border-bottom: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14));
+  margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  gap: 2rem;
+}
+
+.mobile-facets__open,
+.facet-filters__label,
+.facet-filters__sort,
+.product-count__text,
+.mobile-facets__summary,
+.mobile-facets__clear,
+.facets__label {
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  font-weight: 400 !important;
+  color: var(--eg-ink, #1a1a1a);
+}
+
+.mobile-facets__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  transition: opacity 0.4s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.mobile-facets__open:hover { opacity: 0.5; }
+
+.mobile-facets__open svg,
+.mobile-facets__open .icon-filter { display: none; }
+
+.mobile-facets__open::before {
+  content: '';
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
+}
+
+.mobile-facets__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  margin-left: 0.4rem;
+  border-radius: 50%;
+  background: var(--eg-aubergine, #5b2545);
+  color: #fff;
+  font-size: 0.62rem;
+  letter-spacing: 0;
+}
+
+.facet-filters__field,
+.product-count {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.product-count__text { opacity: 0.55; }
+
+.facet-filters select,
+.facet-filters__sort {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0 1.4rem 0 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+.facet-filters select:focus-visible {
+  outline: 1px solid var(--eg-aubergine, #5b2545);
+  outline-offset: 4px;
+}
+
+/* --- Drawer geometry — the part that was broken ----------------------------
+   .mobile-facets       = the full-screen overlay (scrim)
+   .mobile-facets__inner = the white panel that slides
+   -------------------------------------------------------------------------- */
+
+.mobile-facets__wrapper { position: static !important; }
+
+.mobile-facets {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: rgba(26, 26, 26, 0.28) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  z-index: 1000 !important;
+}
+
+.mobile-facets__inner {
+  width: min(440px, 100vw) !important;
+  max-width: min(440px, 100vw) !important;
+  height: 100% !important;
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  background: #fff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transform: translateX(100%);
+  transition: transform 0.7s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* Open state — several selectors because Dawn's version varies */
+.menu-opening .mobile-facets__inner,
+details[open] .mobile-facets__inner,
+.mobile-facets__wrapper details[open] .mobile-facets__inner,
+.mobile-facets__wrapper[open] .mobile-facets__inner {
+  transform: translateX(0) !important;
+}
+
+/* --- Drawer contents ------------------------------------------------------- */
+
+.mobile-facets__header {
+  flex: 0 0 auto;
+  padding: 3rem 2.75rem 1.75rem !important;
+  border-bottom: 0 !important;
+  background: #fff !important;
+  align-items: baseline;
+}
+
+.mobile-facets__heading {
+  font-family: var(--eg-serif, 'Cormorant Garamond', serif) !important;
+  font-weight: 300 !important;
+  font-size: 2.1rem !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+}
+
+.mobile-facets__close,
+.mobile-facets__close-button {
+  color: var(--eg-ink, #1a1a1a) !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.mobile-facets__main {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 2.75rem !important;
+}
+
+.mobile-facets__details {
+  border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+  border-bottom: 0 !important;
+}
+.mobile-facets__details:last-of-type {
+  border-bottom: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+}
+
+.mobile-facets__summary {
+  padding: 1.5rem 0 !important;
+  border: 0 !important;
+}
+.mobile-facets__summary svg { display: none; }
+.mobile-facets__summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.mobile-facets__summary::after {
+  content: '';
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
+}
+.mobile-facets__details[open] > .mobile-facets__summary::after {
+  background: linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+}
+
+.mobile-facets__item,
+.list-menu__item--filter { padding: 0 !important; }
+
+.mobile-facets__label {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem 0 !important;
+  font-family: var(--eg-sans, Inter, sans-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  background: none !important;
+  transition: opacity 0.4s var(--eg-ease, ease);
+}
+.mobile-facets__label:hover { opacity: 0.5; background: none !important; }
+
+.mobile-facets__label .icon-checkmark,
+.mobile-facets__label > svg,
+.facet-checkbox > svg,
+.facet-checkbox .icon-checkmark { display: none !important; }
+
+.mobile-facets__checkbox,
+.facet-checkbox input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mobile-facets__label::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+.mobile-facets__checkbox:checked + .mobile-facets__label::before,
+.mobile-facets__label:has(input:checked)::before {
+  background: var(--eg-aubergine, #5b2545);
+}
+.mobile-facets__label:has(input:checked) {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--eg-aubergine, #5b2545);
+  text-decoration-thickness: 1px;
+}
+
+.mobile-facets__label .label,
+.facet-checkbox__text-label + span,
+.mobile-facets__label > span:last-child {
+  opacity: 0.4;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+/* Price range inputs */
+.mobile-facets__main .facets__price input,
+.facets__price input {
+  border: 0 !important;
+  border-bottom: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--eg-sans, Inter, sans-serif);
+}
+
+/* Footer */
+.mobile-facets__footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.75rem 2.75rem 2.75rem !important;
+  border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.mobile-facets__clear {
+  border: 0 !important;
+  text-decoration: none !important;
+  opacity: 0.45;
+}
+.mobile-facets__clear:hover { opacity: 1; }
+
+.mobile-facets__footer .button,
+.mobile-facets__footer button[type='submit'] {
+  flex: 0 0 auto;
+  background: var(--eg-ink, #1a1a1a) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.95rem 2.5rem !important;
+  min-height: 0 !important;
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  transition: background 0.4s var(--eg-ease, ease);
+}
+.mobile-facets__footer .button:hover { background: var(--eg-aubergine, #5b2545) !important; }
+.mobile-facets__footer .button::after { display: none !important; }
+
+/* Active filter chips */
+.active-facets__button,
+.active-facets__button-inner {
+  border: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+  border-radius: 0 !important;
+  background: none !important;
+  padding: 0.4rem 0.9rem !important;
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  transition: border-color 0.4s ease, color 0.4s ease;
+}
+.active-facets__button:hover {
+  border-color: var(--eg-aubergine, #5b2545) !important;
+  color: var(--eg-aubergine, #5b2545) !important;
+}
+
+@media screen and (max-width: 749px) {
+  .mobile-facets__inner {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+  .mobile-facets__header,
+  .mobile-facets__main,
+  .mobile-facets__footer {
+    padding-left: 1.75rem !important;
+    padding-right: 1.75rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-facets__inner { transition: none; }
+}
+
+/* ==========================================================================
+   EG — Dawn footer restyle
+   ========================================================================== */
+
+.footer {
+  border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14)) !important;
+  background: #fff !important;
+  padding-top: var(--eg-rhythm, 6rem) !important;
+}
+.footer__content-top {
+  padding-bottom: clamp(3rem, 6vw, 5rem) !important;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: var(--eg-gutter, clamp(1.5rem, 5vw, 5rem)) !important;
+  padding-right: var(--eg-gutter, clamp(1.5rem, 5vw, 5rem)) !important;
+}
+
+/* Column headings */
+.footer-block__heading {
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-weight: 600 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Link lists */
+.footer-block__details-content .list-menu__item,
+.footer__list-social .list-social__item { padding: 0 !important; }
+
+.footer-block__details-content a,
+.footer-block-image-link,
+.copyright__content a,
+.policies .list-menu__item a {
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--eg-ink, #1a1a1a) !important;
+  opacity: 0.72;
+  text-decoration: none !important;
+  transition: opacity 0.35s ease !important;
+  padding: 0.45rem 0 !important;
+}
+.footer-block__details-content a:hover { opacity: 1 !important; }
+.footer-block__details-content a::after { display: none !important; }
+
+/* Brand information block — logo, statement centered */
+.footer-block--newsletter,
+.footer__content-top .footer-block.grid__item[class*='brand'] {
+  text-align: center;
+}
+
+/* Social icons */
+.footer__list-social {
+  gap: 1.75rem !important;
+  justify-content: center;
+}
+.footer__list-social .link svg,
+.footer__list-social .icon { width: 17px !important; height: 17px !important; }
+.footer__list-social .link { color: var(--eg-ink, #1a1a1a) !important; opacity: 0.6; }
+.footer__list-social .link:hover { opacity: 1; }
+
+/* Wider gutters between juxtaposed images */
+.egsl__track { gap: clamp(2rem, 4vw, 4rem) !important; }
+.eg-media-duo, .eg-triptych { gap: clamp(2rem, 4.5vw, 5rem) !important; }
+.collection .product-grid, #product-grid { column-gap: clamp(2rem, 4vw, 4.5rem) !important; }
+
+/* ============================================================
+   EG — Collection page type scale + drawer layering
+   ============================================================ */
+
+/* --- Drawer must clear the sticky header --- */
+.mobile-facets { z-index: 2147483000 !important; }
+.mobile-facets__inner { z-index: 2147483001 !important; }
+.section-header,
+sticky-header,
+.header-wrapper { z-index: 100 !important; }
+
+/* --- Filter bar --- */
+.mobile-facets__open,
+.facet-filters__label,
+.facet-filters__sort,
+.product-count__text,
+.facets__label {
+  font-size: 0.82rem !important;
+  letter-spacing: 0.18em !important;
+  font-weight: 400 !important;
+}
+.product-count__text { opacity: 0.55 !important; }
+
+/* --- Product cards --- */
+.card__heading,
+.card__heading a,
+.card-information .card__heading {
+  font-family: var(--eg-serif, 'Cormorant Garamond', serif) !important;
+  font-weight: 300 !important;
+  font-size: 1.5rem !important;
+  line-height: 1.25 !important;
+  letter-spacing: 0.015em !important;
+  text-transform: none !important;
+}
+
+.card-information .price,
+.price__container .price-item,
+.price-item--regular {
+  font-family: var(--eg-sans, Inter, sans-serif) !important;
+  font-size: 0.92rem !important;
+  letter-spacing: 0.1em !important;
+  opacity: 0.7 !important;
+}
+
+.card__content { padding-top: 1.5rem !important; }
+
+/* --- Collection title --- */
+.collection-hero__title,
+.collection .title,
+.collection h1 {
+  font-family: var(--eg-serif, 'Cormorant Garamond', serif) !important;
+  font-weight: 300 !important;
+  font-size: clamp(2.75rem, 5vw, 4.5rem) !important;
+  line-height: 1.05 !important;
+}
+
+/* --- Drawer interior type --- */
+.mobile-facets__heading { font-size: 2.2rem !important; }
+.mobile-facets__summary { font-size: 0.82rem !important; letter-spacing: 0.18em !important; }
+.mobile-facets__label { font-size: 1.02rem !important; }
+.mobile-facets__clear,
+.mobile-facets__footer .button { font-size: 0.78rem !important; letter-spacing: 0.18em !important; }
+/* ============================================================
+   EG — Nav drawer accordion
+   ============================================================ */
+
+.menu-drawer__submenu.has-submenu,
+.menu-drawer__navigation .menu-drawer__submenu,
+.menu-drawer .menu-drawer__submenu {
+  position: static !important;
+  transform: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  background: transparent !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+.menu-drawer__navigation,
+.menu-drawer__inner-container,
+.menu-drawer__navigation-container {
+  transform: none !important;
+  position: static !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+.menu-drawer__inner-submenu {
+  position: static !important;
+  transform: none !important;
+  visibility: visible !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.menu-drawer details:not([open]) > .menu-drawer__submenu { display: none !important; }
+.menu-drawer details[open] > .menu-drawer__submenu {
+  display: block !important;
+  animation: egDrop 0.4s var(--eg-ease) both;
+}
+@keyframes egDrop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.menu-drawer summary.menu-drawer__menu-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding-right: 0 !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+}
+
+.menu-drawer summary .svg-wrapper { display: none !important; }
+.menu-drawer summary.menu-drawer__menu-item::after {
+  content: '';
+  width: 12px; height: 12px; flex: 0 0 12px;
+  margin-left: auto;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
+  opacity: 0.5;
+  transition: opacity 0.3s var(--eg-ease);
+}
+.menu-drawer summary:hover::after { opacity: 1; }
+.menu-drawer details[open] > summary::after {
+  background: linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+}
+
+.menu-drawer__submenu .menu-drawer__menu-item {
+  padding: 0.8rem 0 0.8rem 1.5rem !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.16em !important;
+  opacity: 0.62;
+  border-bottom: 0 !important;
+  transition: opacity 0.3s var(--eg-ease);
+}
+.menu-drawer__submenu .menu-drawer__menu-item:hover { opacity: 1; text-decoration: none !important; }
+.menu-drawer__submenu .menu-drawer__menu-item:first-child { opacity: 0.9; font-weight: 500 !important; }
+.menu-drawer__submenu { padding-bottom: 1rem !important; }
+
+.menu-drawer__close-button { display: none !important; }
+
+
+/* ============================================================
+   EG — Collection grid: 3 across, edge to edge
+   ============================================================ */
+
+#product-grid,
+.collection .product-grid,
+.collection ul.product-grid,
+ul#product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  column-gap: 0 !important;
+  row-gap: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--eg-hairline) !important;
+}
+
+#product-grid > li,
+.collection .product-grid > li,
+.collection .grid__item {
+  width: 100% !important;
+  max-width: none !important;
+  flex: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-right: 1px solid var(--eg-hairline) !important;
+  border-bottom: 1px solid var(--eg-hairline) !important;
+}
+#product-grid > li:nth-child(3n),
+.collection .product-grid > li:nth-child(3n) {
+  border-right: 0 !important;
+}
+
+.collection .page-width,
+main .collection .page-width {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: none !important;
+}
+
+.card__content {
+  padding: 1.75rem clamp(1.5rem, 3vw, 3rem) 2.5rem !important;
+  text-align: left !important;
+}
+
+.card__heading,
+.card__heading a {
+  font-family: var(--eg-serif) !important;
+  font-weight: 300 !important;
+  font-size: clamp(1.25rem, 1.5vw, 1.6rem) !important;
+  line-height: 1.3 !important;
+  margin: 0 0 0.5rem !important;
+}
+
+.card-information .price,
+.price__container .price-item {
+  font-family: var(--eg-sans) !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.06em !important;
+  opacity: 0.75 !important;
+}
+
+.card__media img,
+.card__inner .media img {
+  transition: transform 1.5s var(--eg-ease) !important;
+}
+.card-wrapper:hover .card__media img,
+.card-wrapper:hover .media img {
+  transform: scale(1.04) !important;
+}
+
+@media screen and (max-width: 989px) {
+  #product-grid,
+  .collection .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  #product-grid > li:nth-child(3n) { border-right: 1px solid var(--eg-hairline) !important; }
+  #product-grid > li:nth-child(2n) { border-right: 0 !important; }
+}
+
+@media screen and (max-width: 749px) {
+  #product-grid,
+  .collection .product-grid { grid-template-columns: 1fr !important; }
+  #product-grid > li { border-right: 0 !important; }
+  .card__content { padding: 1.5rem 1.5rem 2.5rem !important; }
+}

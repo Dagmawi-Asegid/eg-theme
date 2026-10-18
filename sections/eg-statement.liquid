@@ -1,0 +1,36 @@
+<section class="egst eg-reveal">
+  <div class="egst__inner">
+    {%- if section.settings.eyebrow != blank -%}<p class="eg-eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+    {%- if section.settings.statement != blank -%}
+      <p class="egst__quote eg-h2">{{ section.settings.statement | newline_to_br }}</p>
+    {%- endif -%}
+    {%- if section.settings.attribution != blank -%}
+      <p class="eg-eyebrow egst__attr">— {{ section.settings.attribution }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- style -%}
+  .egst { background: var(--eg-white); padding: clamp(5rem, 10vw, 9rem) 1.5rem; }
+  .egst__inner {
+    max-width: 860px; margin: 0 auto; text-align: center;
+    display: flex; flex-direction: column; gap: 1.75rem; align-items: center;
+    color: var(--eg-ink);
+  }
+  .egst__quote { font-style: italic; }
+  .egst__attr { opacity: 0.6; }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Statement",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our Standard" },
+    { "type": "textarea", "id": "statement", "label": "Statement", "default": "The market doesn't lack beautiful things. It lacks a name willing to stand behind the artisans who make them." },
+    { "type": "text", "id": "attribution", "label": "Attribution", "default": "Eugenia Grace" }
+  ],
+  "presets": [ { "name": "EG Statement" } ]
+}
+{% endschema %}

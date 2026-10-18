@@ -1,0 +1,240 @@
+{%- comment -%}
+  EG Icons Slider — eg-icons-slider.liquid
+  Buccellati-style horizontal carousel. Spacing synced to --eg-gutter and
+  --eg-rhythm (defined in eg-refinements.css) so it lines up with every
+  other section on the site.
+{%- endcomment -%}
+
+<div class="egsl eg-reveal" data-egsl>
+  {%- if section.settings.title != blank -%}
+    <h2 class="egsl__eyebrow">{{ section.settings.title }}</h2>
+  {%- endif -%}
+
+  <div class="egsl__stage">
+    <button type="button" class="egsl__arrow egsl__arrow--prev" data-egsl-prev aria-label="Previous">
+      <span aria-hidden="true"></span>
+    </button>
+
+    <ul class="egsl__track" data-egsl-track role="list">
+      {%- for block in section.blocks -%}
+        <li class="egsl__card" {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}<a class="egsl__link" href="{{ block.settings.link }}">{%- endif -%}
+
+          <div class="egsl__media {% if section.settings.hover_zoom %}egsl__media--zoom{% endif %}">
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 1400 | image_tag:
+                 loading: 'lazy',
+                 sizes: '(min-width: 750px) 30vw, 80vw',
+                 widths: '400, 700, 1000, 1400',
+                 class: 'egsl__img',
+                 alt: block.settings.label }}
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'egsl__img egsl__img--placeholder' }}
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.label != blank -%}
+            <p class="egsl__label">{{ block.settings.label }}</p>
+          {%- endif -%}
+
+          {%- if block.settings.link != blank -%}</a>{%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    <button type="button" class="egsl__arrow egsl__arrow--next" data-egsl-next aria-label="Next">
+      <span aria-hidden="true"></span>
+    </button>
+  </div>
+</div>
+
+{%- style -%}
+  .egsl {
+    padding-top: {% if section.settings.pad_top == 8 %}var(--eg-rhythm, 8rem){% else %}{{ section.settings.pad_top }}rem{% endif %};
+    padding-bottom: {% if section.settings.pad_bottom == 8 %}var(--eg-rhythm, 8rem){% else %}{{ section.settings.pad_bottom }}rem{% endif %};
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .egsl__eyebrow {
+    margin: 0 0 clamp(2.5rem, 5vw, 4.5rem);
+    text-align: center;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-weight: 400;
+    font-size: 0.8rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--eg-ink, #1a1a1a);
+  }
+
+  .egsl__stage { position: relative; }
+
+  .egsl__track {
+    display: flex;
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--eg-gutter, clamp(1.5rem, 5vw, 5rem));
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--eg-gutter, clamp(1.5rem, 5vw, 5rem));
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .egsl__track::-webkit-scrollbar { display: none; }
+
+  .egsl__card {
+    flex: 0 0 auto;
+    width: clamp(240px, 27vw, 460px);
+    scroll-snap-align: start;
+  }
+
+  .egsl__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .egsl__media {
+    overflow: hidden;
+    background: #f6f6f6;
+    aspect-ratio: {{ section.settings.ratio }};
+  }
+  .egsl__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .egsl__media--zoom .egsl__img {
+    transition: transform 1.4s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .egsl__card:hover .egsl__media--zoom .egsl__img { transform: scale(1.05); }
+
+  .egsl__label {
+    margin: 1.4rem 0 0;
+    text-align: center;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.74rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--eg-ink, #1a1a1a);
+  }
+
+  .egsl__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 46px;
+    height: 46px;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--eg-ink, #1a1a1a);
+    transition: opacity 0.3s var(--eg-ease, ease);
+  }
+  .egsl__arrow:hover { opacity: 0.45; }
+  .egsl__arrow--prev { left: clamp(0.25rem, 1.5vw, 1.5rem); }
+  .egsl__arrow--next { right: clamp(0.25rem, 1.5vw, 1.5rem); }
+
+  .egsl__arrow span {
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: 0 auto;
+    border-top: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+  }
+  .egsl__arrow--prev span { transform: rotate(-135deg); }
+  .egsl__arrow--next span { transform: rotate(45deg); }
+
+  .egsl__arrow[disabled] { opacity: 0.15; pointer-events: none; }
+
+  @media screen and (max-width: 749px) {
+    .egsl__card { width: 74vw; }
+    .egsl__arrow { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egsl__media--zoom .egsl__img { transition: none; }
+    .egsl__track { scroll-behavior: auto !important; }
+  }
+{%- endstyle -%}
+
+<script>
+  (function () {
+    document.querySelectorAll('[data-egsl]').forEach(function (root) {
+      if (root.dataset.egslBound === 'true') return;
+      root.dataset.egslBound = 'true';
+
+      var track = root.querySelector('[data-egsl-track]');
+      var prev = root.querySelector('[data-egsl-prev]');
+      var next = root.querySelector('[data-egsl-next]');
+      if (!track || !prev || !next) return;
+
+      function step() {
+        var card = track.querySelector('.egsl__card');
+        if (!card) return 300;
+        var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+        return card.getBoundingClientRect().width + gap;
+      }
+
+      function update() {
+        var max = track.scrollWidth - track.clientWidth - 2;
+        prev.toggleAttribute('disabled', track.scrollLeft <= 2);
+        next.toggleAttribute('disabled', track.scrollLeft >= max);
+      }
+
+      prev.addEventListener('click', function () {
+        track.scrollBy({ left: -step(), behavior: 'smooth' });
+      });
+      next.addEventListener('click', function () {
+        track.scrollBy({ left: step(), behavior: 'smooth' });
+      });
+      track.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "EG Icons Slider",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Eyebrow title", "default": "The Eugenia Grace Icons" },
+    { "type": "select", "id": "ratio", "label": "Image shape", "options": [
+      { "value": "3 / 4", "label": "Portrait (like Buccellati)" },
+      { "value": "1 / 1", "label": "Square" },
+      { "value": "4 / 5", "label": "Tall square" }
+    ], "default": "3 / 4" },
+    { "type": "checkbox", "id": "hover_zoom", "label": "Slow zoom on hover", "default": true },
+    { "type": "range", "id": "pad_top", "min": 2, "max": 14, "step": 1, "unit": "rem", "label": "Space above", "default": 8 },
+    { "type": "range", "id": "pad_bottom", "min": 2, "max": 14, "step": 1, "unit": "rem", "label": "Space below", "default": 8 }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Collection name" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "EG Icons Slider",
+      "blocks": [
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

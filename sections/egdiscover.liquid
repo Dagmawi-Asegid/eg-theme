@@ -1,0 +1,190 @@
+{%- comment -%}
+  EG Discover — sections/eg-discover.liquid
+  Simon layout 03. Category tiles in a row; the last tile runs off the
+  right edge so it reads as scrollable. Swipe on phones, drag on desktop.
+  "Image style: Cut-out" = Simon's alternate with products on white.
+{%- endcomment -%}
+
+<div class="egdisc egdisc--{{ section.settings.fit }}" id="egdisc-{{ section.id }}" style="padding-top: {{ section.settings.pad_top }}rem; padding-bottom: {{ section.settings.pad_bottom }}rem;">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="egdisc__heading">{{ section.settings.heading }}</h2>
+  {%- endif -%}
+
+  <div class="egdisc__track" data-egdisc-track>
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign tag = 'div'
+        if block.settings.link != blank
+          assign tag = 'a'
+        endif
+      -%}
+      <{{ tag }} class="egdisc__tile"{% if tag == 'a' %} href="{{ block.settings.link }}"{% endif %} {{ block.shopify_attributes }}>
+        <div class="egdisc__media">
+          {%- if block.settings.image != blank -%}
+            {{ block.settings.image | image_url: width: 1200 | image_tag:
+               loading: 'lazy', sizes: '(min-width: 750px) 24vw, 70vw',
+               widths: '400, 600, 800, 1200',
+               class: 'egdisc__img', alt: block.settings.label, draggable: 'false' }}
+          {%- else -%}
+            {{ 'collection-1' | placeholder_svg_tag: 'egdisc__img egdisc__placeholder' }}
+          {%- endif -%}
+        </div>
+        {%- if block.settings.label != blank -%}
+          <p class="egdisc__label">{{ block.settings.label }}</p>
+        {%- endif -%}
+      </{{ tag }}>
+    {%- endfor -%}
+  </div>
+</div>
+
+{%- style -%}
+  .egdisc__heading {
+    margin: 0 0 clamp(2rem, 4vw, 3.5rem);
+    text-align: center;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 3vw, 3rem);
+    color: var(--eg-ink, #1a1a1a);
+  }
+
+  .egdisc__track {
+    display: flex;
+    gap: 1.25vw;
+    padding: 0 5vw;
+    scroll-padding: 0 5vw;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    cursor: grab;
+  }
+  .egdisc__track::-webkit-scrollbar { display: none; }
+  .egdisc__track.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+  .egdisc__track.is-dragging .egdisc__tile { pointer-events: none; }
+
+  .egdisc__tile {
+    flex: 0 0 24vw;
+    scroll-snap-align: start;
+    color: var(--eg-ink, #1a1a1a);
+    text-decoration: none;
+  }
+
+  .egdisc__media {
+    position: relative;
+    aspect-ratio: 7 / 8;
+    overflow: hidden;
+    background: #f4f2f0;
+  }
+  .egdisc__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 1.4s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1));
+    user-select: none;
+  }
+  .egdisc--contain .egdisc__media { background: #fff; }
+  .egdisc--contain .egdisc__img {
+    inset: 10%;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+  }
+  .egdisc__tile:hover .egdisc__img { transform: scale(1.03); }
+
+  .egdisc__label {
+    margin: 1.1rem 0 0;
+    text-align: center;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  @media screen and (max-width: 749px) {
+    .egdisc__track { gap: 0.75rem; padding: 0 1.5rem; scroll-padding: 0 1.5rem; }
+    .egdisc__tile { flex-basis: 68vw; }
+  }
+{%- endstyle -%}
+
+<script>
+  (function () {
+    var track = document.querySelector('#egdisc-{{ section.id }} [data-egdisc-track]');
+    if (!track || track.dataset.egReady) return;
+    track.dataset.egReady = 'true';
+
+    var down = false;
+    var moved = false;
+    var startX = 0;
+    var startScroll = 0;
+
+    track.addEventListener('mousedown', function (e) {
+      down = true;
+      moved = false;
+      startX = e.pageX;
+      startScroll = track.scrollLeft;
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!down) return;
+      var dx = e.pageX - startX;
+      if (Math.abs(dx) > 5) {
+        moved = true;
+        track.classList.add('is-dragging');
+      }
+      track.scrollLeft = startScroll - dx;
+    });
+    window.addEventListener('mouseup', function () {
+      if (!down) return;
+      down = false;
+      track.classList.remove('is-dragging');
+    });
+    track.addEventListener('click', function (e) {
+      if (moved) { e.preventDefault(); moved = false; }
+    }, true);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "EG Discover",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 8,
+  "settings": [
+    { "type": "paragraph", "content": "Simon's section 03. The categories. Add one block per category." },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Optional. Simon's layout has none." },
+    { "type": "select", "id": "fit", "label": "Image style", "options": [
+      { "value": "cover", "label": "Photo (fills the tile)" },
+      { "value": "contain", "label": "Cut-out (product on white)" }
+    ], "default": "cover" },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 0 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 8 }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Jewelry" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "EG Discover",
+      "blocks": [
+        { "type": "category", "settings": { "label": "Jewelry" } },
+        { "type": "category", "settings": { "label": "Bridal" } },
+        { "type": "category", "settings": { "label": "Home Decor" } },
+        { "type": "category", "settings": { "label": "Accessories" } },
+        { "type": "category", "settings": { "label": "Fine Art" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

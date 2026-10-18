@@ -1,0 +1,111 @@
+{%- liquid
+  comment
+    Artisan info comes from the Artisan metaobject linked to the product (name, portrait, story, quote).
+    Falls back to the older per-product fields if a product has no artisan linked. Updated 2026-10-18.
+  endcomment
+  assign artisan = product.metafields.custom.artisan.value
+  if artisan == blank
+    assign artisan = product.metafields.artisan.name.value
+  endif
+
+  assign a_name = artisan.name.value | default: artisan.name
+  assign a_quote = artisan.quote.value
+  assign a_bio = artisan.story.value
+  assign a_portrait = artisan.portrait.value
+
+  if a_name == blank
+    assign a_name = product.metafields.artisan.name.value
+  endif
+  if a_quote == blank
+    assign a_quote = product.metafields.custom.artisan_quote.value
+  endif
+  if a_bio == blank
+    assign a_bio = product.metafields.custom.artisan_bio.value
+  endif
+  if a_portrait == blank
+    assign a_portrait = product.metafields.custom.artisan_portrait.value
+  endif
+-%}
+
+{%- if a_name != blank or a_bio != blank or a_portrait != blank -%}
+<section class="egart eg-reveal" style="--egart-bg: {{ section.settings.bg_color }};">
+  <div class="egart__grid egart__grid--{{ section.settings.portrait_side }}">
+    <div class="egart__text">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eg-eyebrow egart__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if a_name != blank -%}
+        <h2 class="egart__name">{{ a_name }}</h2>
+      {%- endif -%}
+      {%- if a_quote != blank -%}
+        <p class="egart__quote">{{ a_quote }}</p>
+      {%- endif -%}
+      {%- if a_bio != blank -%}
+        <div class="egart__bio">{{ a_bio | newline_to_br }}</div>
+      {%- endif -%}
+      {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
+        <a class="eg-link egart__link" href="{{ section.settings.cta_url }}">{{ section.settings.cta_label }}</a>
+      {%- endif -%}
+    </div>
+    <div class="egart__media eg-hover-zoom">
+      {%- if a_portrait != blank -%}
+        {{ a_portrait | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 750px) 45vw, 100vw', widths: '500,800,1000,1200', alt: a_name }}
+      {%- else -%}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+
+{%- style -%}
+  .egart { background: var(--egart-bg); padding: clamp(4rem, 8vw, 8rem) 0; }
+  .egart__grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; gap: clamp(2rem, 5vw, 6rem);
+    max-width: 1500px; margin: 0 auto; padding: 0 clamp(1.5rem, 4vw, 4rem);
+  }
+  .egart__grid--left .egart__media { order: -1; }
+  .egart__text { display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-start; color: #1A1A1A; }
+  .egart__eyebrow { color: var(--eg-aubergine); }
+  .egart__name {
+    font-family: var(--eg-serif); font-weight: 300;
+    font-size: clamp(2.75rem, 4.5vw, 4.5rem); line-height: 1;
+    letter-spacing: 0.01em; margin: 0;
+  }
+  .egart__quote {
+    font-family: var(--eg-serif); font-style: italic; font-weight: 300;
+    font-size: clamp(1.35rem, 1.8vw, 1.7rem); line-height: 1.4;
+    color: #1A1A1A; margin: 0; max-width: 40ch;
+  }
+  .egart__bio {
+    font-family: var(--eg-sans); font-size: var(--eg-body);
+    line-height: 1.7; color: #3A3A3A; max-width: 46ch;
+  }
+  .egart__media img, .egart__media svg {
+    width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 4 / 5;
+  }
+  @media screen and (max-width: 749px) {
+    .egart__grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .egart__grid--left .egart__media { order: 0; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Artisan",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "paragraph", "content": "This section pulls each product's own artisan info automatically. To edit an artisan: go to that Product → scroll to Metafields → fill in Name, Quote, Bio, Portrait. No template setup needed — every product edits independently." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Artisan" },
+    { "type": "select", "id": "portrait_side", "label": "Portrait side", "options": [
+      { "value": "right", "label": "Right" }, { "value": "left", "label": "Left" }
+    ], "default": "right" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#FFFFFF" },
+    { "type": "text", "id": "cta_label", "label": "Link label (optional)" },
+    { "type": "url", "id": "cta_url", "label": "Link (optional)" }
+  ],
+  "presets": [ { "name": "EG Artisan" } ]
+}
+{% endschema %}

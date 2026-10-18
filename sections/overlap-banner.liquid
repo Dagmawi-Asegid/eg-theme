@@ -1,0 +1,86 @@
+{%- liquid
+  assign main_image = section.settings.main_image
+  assign overlap_image = section.settings.overlap_image
+  assign headline = section.settings.headline
+  assign subtitle = section.settings.subtitle
+-%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="eg-overlap section-{{ section.id }}-padding">
+    <div class="eg-overlap__inner">
+
+      <div class="eg-overlap__band" style="background: {{ section.settings.band_color }};">
+        {%- if main_image != blank -%}
+          <div class="eg-overlap__main">
+            {{ main_image | image_url: width: 2000 | image_tag: loading: 'lazy', widths: '800, 1200, 1600, 2000', sizes: '70vw', alt: '' }}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="eg-overlap__floating page-width">
+        <div class="eg-overlap__overlap-image">
+          {%- if overlap_image != blank -%}
+            {{ overlap_image | image_url: width: 600 | image_tag: loading: 'lazy', widths: '300, 450, 600', sizes: '240px', alt: '' }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </div>
+        <div class="eg-overlap__text">
+          {%- if headline != blank -%}
+            <h2 class="eg-overlap__headline">{{ headline }}</h2>
+          {%- endif -%}
+          {%- if subtitle != blank -%}
+            <p class="eg-overlap__subtitle">{{ subtitle }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{%- style -%}
+  .section-{{ section.id }}-padding { padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px; padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px; }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding { padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; }
+  }
+  .eg-overlap__inner { position: relative; }
+  .eg-overlap__band { width: 100%; height: clamp(280px, 36vw, 480px); position: relative; overflow: hidden; }
+  .eg-overlap__main { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .eg-overlap__main img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.95; }
+  .eg-overlap__floating { display: grid; grid-template-columns: auto 1fr; gap: 2.5rem; align-items: end; margin-top: -120px; position: relative; z-index: 2; }
+  .eg-overlap__overlap-image { width: 240px; flex-shrink: 0; }
+  .eg-overlap__overlap-image img, .eg-overlap__overlap-image svg { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+  .eg-overlap__text { padding-bottom: 1rem; color: rgb(var(--color-foreground)); }
+  .eg-overlap__headline { font-family: var(--font-heading-family); font-weight: 300; font-size: clamp(1.75rem, 3.2vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em; margin: 0 0 0.75rem; }
+  .eg-overlap__subtitle { font-family: var(--font-body-family); font-size: 0.9rem; opacity: 0.7; margin: 0; max-width: 38ch; }
+  @media screen and (max-width: 749px) {
+    .eg-overlap__floating { grid-template-columns: 1fr; margin-top: -60px; padding: 0 1.25rem; gap: 1.5rem; }
+    .eg-overlap__overlap-image { width: 160px; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Overlap Banner",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "header", "content": "Banner image" },
+    { "type": "image_picker", "id": "main_image", "label": "Main banner image (landscape)" },
+    { "type": "color", "id": "band_color", "label": "Band color (shows if no image)", "default": "#2A4A45" },
+    { "type": "header", "content": "Overlapping detail" },
+    { "type": "image_picker", "id": "overlap_image", "label": "Overlap detail image (square)" },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Stunning with Simplicity" },
+    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Meet the pieces that'll leave a quiet impression" },
+    { "type": "header", "content": "Appearance" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 96 }
+  ],
+  "presets": [
+    { "name": "Overlap Banner" }
+  ]
+}
+{% endschema %}

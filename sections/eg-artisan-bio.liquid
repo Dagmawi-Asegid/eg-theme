@@ -1,0 +1,201 @@
+{%- comment -%}
+  EG Artisan Bio — sections/eg-artisan-bio.liquid
+  Product page. Shows the artisan's portrait, name, quote and story.
+  Reads the product's "Artisan" field (custom.artisan), which points to an
+  Artisan metaobject with fields: name, portrait, story, quote.
+  Falls back to the old per-product fields so older products still show.
+  The name links to the artisan's collection if one exists with a matching name.
+{%- endcomment -%}
+
+{%- liquid
+  assign artisan = product.metafields.custom.artisan.value
+
+  assign a_name = nil
+  assign a_portrait = nil
+  assign a_story = nil
+  assign a_quote = nil
+
+  if artisan != blank
+    assign a_name = artisan.name.value
+    assign a_portrait = artisan.portrait.value
+    assign a_story = artisan.story.value
+    assign a_quote = artisan.quote.value
+  endif
+
+  if a_name == blank
+    assign a_name = product.metafields.artisan.name.value
+  endif
+  if a_portrait == blank
+    assign a_portrait = product.metafields.custom.artisan_portrait.value
+  endif
+  if a_story == blank
+    assign a_story = product.metafields.custom.artisan_bio.value
+  endif
+  if a_quote == blank
+    assign a_quote = product.metafields.custom.artisan_quote.value
+  endif
+
+  assign a_link = nil
+  if a_name != blank
+    assign a_handle = a_name | handleize
+    assign a_collection = collections[a_handle]
+    if a_collection.id != blank
+      assign a_link = a_collection.url
+    endif
+  endif
+
+  assign link_label = section.settings.link_label | replace: '[name]', a_name
+-%}
+
+{%- if a_name != blank or a_story != blank -%}
+<div class="egab" style="padding-top: {{ section.settings.pad_top }}rem; padding-bottom: {{ section.settings.pad_bottom }}rem;">
+  <div class="egab__inner{% if a_portrait == blank %} egab__inner--no-photo{% endif %}">
+    {%- if a_portrait != blank -%}
+      <div class="egab__photo">
+        {{ a_portrait | image_url: width: 1200 | image_tag:
+           loading: 'lazy', sizes: '(min-width: 750px) 40vw, 100vw',
+           widths: '500, 800, 1000, 1200',
+           class: 'egab__img', alt: a_name }}
+      </div>
+    {%- endif -%}
+
+    <div class="egab__text">
+      {%- if section.settings.label != blank -%}
+        <p class="egab__label">{{ section.settings.label }}</p>
+      {%- endif -%}
+
+      {%- if a_name != blank -%}
+        <h2 class="egab__name">
+          {%- if a_link != blank -%}
+            <a href="{{ a_link }}">{{ a_name }}</a>
+          {%- else -%}
+            {{ a_name }}
+          {%- endif -%}
+        </h2>
+      {%- endif -%}
+
+      {%- if section.settings.show_quote and a_quote != blank -%}
+        <blockquote class="egab__quote">“{{ a_quote | strip | remove: '“' | remove: '”' | remove: '"' | newline_to_br }}”</blockquote>
+      {%- endif -%}
+
+      {%- if a_story != blank -%}
+        <div class="egab__story"><p>{{ a_story | newline_to_br }}</p></div>
+      {%- endif -%}
+
+      {%- if a_link != blank and link_label != blank -%}
+        <a class="egab__more" href="{{ a_link }}">{{ link_label }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+{%- style -%}
+  .egab {
+    color: var(--eg-ink, #1a1a1a);
+    border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14));
+  }
+  .egab__inner {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 var(--eg-gutter, 4rem);
+  }
+  .egab__inner--no-photo {
+    grid-template-columns: 1fr;
+    max-width: 46rem;
+    text-align: center;
+  }
+  .egab__photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #e9e8e6;
+  }
+  .egab__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .egab__label {
+    margin: 0 0 1rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .egab__name {
+    margin: 0 0 1.5rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 3vw, 3rem);
+    line-height: 1.15;
+  }
+  .egab__name a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+  .egab__name a:hover { opacity: 0.6; }
+  .egab__quote {
+    margin: 0 0 1.75rem;
+    padding: 0;
+    border: 0;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-style: italic;
+    font-size: clamp(1.25rem, 1.8vw, 1.7rem);
+    line-height: 1.35;
+  }
+  .egab__story {
+    max-width: 38rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-size: clamp(1rem, 1.1vw, 1.12rem);
+    line-height: 1.6;
+  }
+  .egab__inner--no-photo .egab__story { margin: 0 auto; }
+  .egab__story p { margin: 0; }
+  .egab__more {
+    display: inline-block;
+    margin-top: 2rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid currentColor;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+  .egab__more:hover { opacity: 0.55; }
+
+  @media screen and (max-width: 749px) {
+    .egab__inner { grid-template-columns: 1fr; padding: 0 1.5rem; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Artisan Bio",
+  "tag": "section",
+  "class": "section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "paragraph", "content": "Shows the artisan linked in the product's Artisan field: portrait, name, quote and story. Edit the artisan once under Content > Metaobjects and it updates on every product." },
+    { "type": "text", "id": "label", "label": "Small label", "default": "The Artisan" },
+    { "type": "checkbox", "id": "show_quote", "label": "Show quote", "default": true },
+    { "type": "text", "id": "link_label", "label": "Link text", "default": "Discover [name]'s Collection", "info": "[name] becomes the artisan's name. Only shows if a collection with the artisan's name exists." },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 7 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 7 }
+  ],
+  "presets": [ { "name": "EG Artisan Bio" } ]
+}
+{% endschema %}

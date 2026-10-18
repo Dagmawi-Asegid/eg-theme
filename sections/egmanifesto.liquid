@@ -1,0 +1,49 @@
+{%- comment -%}
+  EG Manifesto — sections/eg-manifesto.liquid
+  Simon layout 02. One strong sentence plus a very short introduction, centered.
+  Bold the brand name with the B button in the text editor.
+{%- endcomment -%}
+
+<div class="egman" style="padding-top: {{ section.settings.pad_top }}rem; padding-bottom: {{ section.settings.pad_bottom }}rem;">
+  <div class="egman__text">{{ section.settings.text }}</div>
+</div>
+
+{%- style -%}
+  .egman {
+    padding-left: var(--eg-gutter, 4rem);
+    padding-right: var(--eg-gutter, 4rem);
+  }
+  .egman__text {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 400;
+    font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+    line-height: 1.55;
+    color: var(--eg-ink, #1a1a1a);
+  }
+  .egman__text p { margin: 0; }
+  .egman__text p + p { margin-top: 1em; }
+  .egman__text strong { font-weight: 600; }
+
+  @media screen and (max-width: 749px) {
+    .egman { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Manifesto",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Simon's section 02. One strong sentence and a short intro." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p><strong>Eugenia Grace</strong> is redefining luxury through curated handmade. We represent the extraordinary, made by hand.</p>" },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 8 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 8 }
+  ],
+  "presets": [ { "name": "EG Manifesto" } ]
+}
+{% endschema %}

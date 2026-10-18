@@ -1,0 +1,120 @@
+/* EG product gallery — Hermès-style frame + click-to-zoom.
+   Works on top of Dawn's "thumbnail_slider" gallery layout. Dagmawi Asegid, 2026-10-18. */
+
+/* Keep the main image AND the thumbnails inside one screen: no scrolling to see photos. */
+@media screen and (min-width: 750px) {
+  .product--thumbnail_slider .product-media-container.constrain-height {
+    --viewport-offset: 330px;
+    --constrained-min-height: 340px;
+  }
+  .product--thumbnail_slider .thumbnail-slider {
+    justify-content: center;
+  }
+  .product--thumbnail_slider .thumbnail-list {
+    justify-content: center;
+    gap: 10px;
+  }
+  .product--thumbnail_slider .thumbnail-list__item {
+    flex: 0 0 76px !important;
+    width: 76px !important;
+  }
+}
+
+/* Prev / next arrows sitting on the main image (desktop). */
+.eg-gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #111;
+  font-size: 22px;
+  line-height: 44px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.eg-gallery-nav--prev { left: 12px; }
+.eg-gallery-nav--next { right: 12px; }
+media-gallery:hover .eg-gallery-nav,
+.eg-gallery-nav:focus-visible { opacity: 1; }
+@media screen and (max-width: 989px) {
+  .eg-gallery-nav { display: none; }
+}
+
+/* Main image shows a zoom cursor so people know they can click. */
+.product--thumbnail_slider .product__media-item.is-active .product__media img { cursor: zoom-in; }
+
+/* Full-screen zoom viewer. */
+.eg-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #fff;
+  display: none;
+  overflow: hidden;
+}
+.eg-zoom.is-open { display: block; }
+.eg-zoom__back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.3rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #111;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+.eg-zoom__counter {
+  position: absolute;
+  top: 28px;
+  right: 24px;
+  z-index: 2;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  color: #555;
+}
+.eg-zoom__stage {
+  position: absolute;
+  inset: 70px 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.eg-zoom__img {
+  max-width: 92vw;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  transition: transform 0.25s ease;
+  transform-origin: center center;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.eg-zoom.is-zoomed .eg-zoom__img { cursor: zoom-out; transform: scale(2.2); transition: none; }
+.eg-zoom__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  border: 0;
+  background: none;
+  font-size: 34px;
+  color: #111;
+  cursor: pointer;
+  padding: 12px;
+}
+.eg-zoom__arrow--prev { left: 12px; }
+.eg-zoom__arrow--next { right: 12px; }
+.eg-zoom.is-zoomed .eg-zoom__arrow { display: none; }
+body.eg-zoom-open { overflow: hidden; }

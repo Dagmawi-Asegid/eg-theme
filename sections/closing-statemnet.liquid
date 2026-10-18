@@ -1,0 +1,175 @@
+{%- comment -%}
+  EG Closing Statement — eg-closing.liquid
+  Typographic pre-footer. Centered narrow statement + optional
+  three-column hairline row. No images by design.
+{%- endcomment -%}
+
+<div class="egcl eg-reveal" style="background: {{ section.settings.bg }};">
+  <div class="egcl__statement">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="egcl__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h2 class="egcl__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.body != blank -%}
+      <div class="egcl__body">{{ section.settings.body }}</div>
+    {%- endif -%}
+
+    {%- if section.settings.link_label != blank -%}
+      <a class="egcl__link" href="{{ section.settings.link_url }}">
+        <span>{{ section.settings.link_label }}</span>
+      </a>
+    {%- endif -%}
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    <ul class="egcl__row" role="list">
+      {%- for block in section.blocks -%}
+        <li class="egcl__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.title != blank -%}
+            <h3 class="egcl__item-title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <p class="egcl__item-text">{{ block.settings.text }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{%- style -%}
+  .egcl {
+    padding: {{ section.settings.pad_top }}rem var(--eg-gutter, clamp(1.5rem, 5vw, 5rem)) {{ section.settings.pad_bottom }}rem;
+    text-align: center;
+    color: var(--eg-ink, #1a1a1a);
+  }
+
+  .egcl__statement {
+    max-width: 52ch;
+    margin: 0 auto;
+  }
+
+  .egcl__eyebrow {
+    margin: 0 0 2rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  .egcl__heading {
+    margin: 0 0 1.75rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 300;
+    font-size: clamp(2rem, 3.6vw, 3.6rem);
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+  }
+
+  .egcl__body {
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 1rem;
+    line-height: 1.95;
+    opacity: 0.72;
+  }
+  .egcl__body p { margin: 0 0 1.25rem; }
+  .egcl__body p:last-child { margin-bottom: 0; }
+
+  .egcl__link {
+    display: inline-block;
+    margin-top: 2.5rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--eg-ink, #1a1a1a);
+    text-decoration: none;
+  }
+  .egcl__link span {
+    display: inline-block;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid currentColor;
+    transition: opacity 0.4s var(--eg-ease, cubic-bezier(0.22,1,0.36,1));
+  }
+  .egcl__link:hover span { opacity: 0.45; }
+
+  .egcl__row {
+    list-style: none;
+    margin: clamp(4rem, 8vw, 7rem) auto 0;
+    padding: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    max-width: 1200px;
+    border-top: 1px solid var(--eg-hairline, rgba(26, 26, 26, 0.14));
+    display: grid;
+    grid-template-columns: repeat({{ section.blocks.size }}, 1fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+
+  .egcl__item-title {
+    margin: 0 0 0.9rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-weight: 500;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .egcl__item-text {
+    margin: 0;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.88rem;
+    line-height: 1.8;
+    opacity: 0.6;
+  }
+
+  @media screen and (max-width: 749px) {
+    .egcl__row {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Closing Statement",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Typographic pre-footer. Sits well directly under a full-bleed video. Add up to 4 blocks for the hairline row, or none for statement only." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Luxury of Handmade" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Made by hand, kept for a lifetime" },
+    { "type": "richtext", "id": "body", "label": "Body", "default": "<p>Every piece is made by an independent studio and vetted for material mastery, provenance, and singular craftsmanship.</p>" },
+    { "type": "text", "id": "link_label", "label": "Link text", "default": "Discover our artisans" },
+    { "type": "url", "id": "link_url", "label": "Link" },
+    { "type": "header", "content": "Layout" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFFFF" },
+    { "type": "range", "id": "pad_top", "min": 3, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 9 },
+    { "type": "range", "id": "pad_bottom", "min": 3, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 9 }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Row item",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Complimentary Shipping" },
+        { "type": "text", "id": "text", "label": "Text", "default": "On all orders, worldwide." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "EG Closing Statement",
+      "blocks": [
+        { "type": "item", "settings": { "title": "Complimentary Shipping", "text": "On all orders, worldwide." } },
+        { "type": "item", "settings": { "title": "Vetted Provenance", "text": "Every studio verified for authenticity." } },
+        { "type": "item", "settings": { "title": "Lifetime Care", "text": "Repair and restoration by the maker." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

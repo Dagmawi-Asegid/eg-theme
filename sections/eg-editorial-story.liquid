@@ -1,0 +1,389 @@
+{%- comment -%}
+  EG Editorial Story — sections/eg-editorial-story.liquid
+  Simon layout 04. Edge-to-edge checkerboard: a lifestyle photo next to a
+  product tile. Product tiles pull images from the product and the dots
+  switch between them. Add blocks in the order they should appear
+  (Simon: Photo, Product, Product, Photo).
+  Self-contained: no snippet needed.
+{%- endcomment -%}
+
+<div class="eges eges--cols-{{ section.settings.columns }}" id="eges-{{ section.id }}" style="--eges-bg: {{ section.settings.tile_bg }}; padding-top: {{ section.settings.pad_top }}rem; padding-bottom: {{ section.settings.pad_bottom }}rem;">
+  <div class="eges__grid">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+
+        {%- when 'lifestyle' -%}
+          {%- liquid
+            assign tag = 'div'
+            if block.settings.link != blank
+              assign tag = 'a'
+            endif
+          -%}
+          <{{ tag }} class="eges__tile eges__tile--photo"{% if tag == 'a' %} href="{{ block.settings.link }}"{% endif %} {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 1800 | image_tag:
+                 loading: 'lazy', sizes: '(min-width: 750px) 50vw, 100vw',
+                 widths: '600, 900, 1200, 1800',
+                 class: 'eges__photo', alt: block.settings.caption }}
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'eges__photo eges__placeholder' }}
+            {%- endif -%}
+            <div class="eges__overlay">
+              {%- if block.settings.headline != blank -%}
+                <p class="eges__headline">{{ block.settings.headline }}</p>
+              {%- endif -%}
+              {%- if block.settings.caption != blank -%}
+                <p class="eges__caption">{{ block.settings.caption }}</p>
+              {%- endif -%}
+            </div>
+          </{{ tag }}>
+
+        {%- when 'product' -%}
+          {%- assign p = block.settings.product -%}
+          <div class="eges__tile eges__tile--product" data-eges-card {{ block.shopify_attributes }}>
+            {%- if p != blank -%}
+              {%- liquid
+                assign title = block.settings.title | default: p.title
+                assign link = block.settings.link | default: p.url
+                assign count = p.images.size
+                if count > section.settings.max_images
+                  assign count = section.settings.max_images
+                endif
+              -%}
+              <a class="eges__media" href="{{ p.url }}" data-eges-media aria-label="{{ title | escape }}">
+                {%- for img in p.images limit: section.settings.max_images -%}
+                  <div class="eges__slide{% if forloop.first %} is-active{% endif %}" data-eges-slide="{{ forloop.index0 }}">
+                    {{ img | image_url: width: 1200 | image_tag:
+                       loading: 'lazy', sizes: '(min-width: 750px) 30vw, 70vw',
+                       widths: '400, 700, 1000, 1200',
+                       class: 'eges__product-img', alt: title }}
+                  </div>
+                {%- else -%}
+                  <div class="eges__slide is-active" data-eges-slide="0">
+                    {{ 'product-1' | placeholder_svg_tag: 'eges__product-img' }}
+                  </div>
+                {%- endfor -%}
+              </a>
+              <div class="eges__info">
+                <h3 class="eges__title">{{ title }}</h3>
+                {%- if block.settings.link_label != blank -%}
+                  <a class="eges__cta" href="{{ link }}">{{ block.settings.link_label }}</a>
+                {%- endif -%}
+                {%- if count > 1 -%}
+                  <div class="eges__dots" role="group" aria-label="{{ title | escape }} images">
+                    {%- for i in (1..count) -%}
+                      <button type="button" class="eges__dot{% if forloop.first %} is-active{% endif %}" data-eges-dot="{{ forloop.index0 }}" aria-label="Show image {{ i }} of {{ count }}"{% if forloop.first %} aria-current="true"{% endif %}></button>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- else -%}
+              <div class="eges__media">
+                <div class="eges__slide is-active">{{ 'product-1' | placeholder_svg_tag: 'eges__product-img' }}</div>
+              </div>
+              <div class="eges__info">
+                <h3 class="eges__title">Select a product</h3>
+              </div>
+            {%- endif -%}
+          </div>
+
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{%- style -%}
+  .eges__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eges--cols-4 .eges__grid { grid-template-columns: repeat(4, 1fr); }
+
+  .eges__tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    color: var(--eg-ink, #1a1a1a);
+    text-decoration: none;
+  }
+
+  /* Lifestyle photo tile */
+  .eges__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 1.6s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .eges__placeholder { background: #d9d6d3; }
+  .eges__tile--photo::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0));
+    pointer-events: none;
+  }
+  a.eges__tile--photo:hover .eges__photo { transform: scale(1.03); }
+  .eges__overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(1.5rem, 4.5%, 3rem);
+    z-index: 1;
+    padding: 0 1.5rem;
+    text-align: center;
+    color: #fff;
+  }
+  .eges__headline {
+    margin: 0 0 0.6rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 400;
+    font-size: clamp(1.25rem, 1.8vw, 1.9rem);
+    line-height: 1.2;
+  }
+  .eges__caption {
+    margin: 0;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    word-spacing: 0.15em;
+  }
+
+  /* Product tile */
+  .eges__tile--product {
+    display: flex;
+    flex-direction: column;
+    background: var(--eges-bg);
+  }
+  .eges__media {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    touch-action: pan-y;
+  }
+  .eges__slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12% 18% 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1)), visibility 0s linear 0.6s;
+  }
+  .eges__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s var(--eg-ease, cubic-bezier(0.22, 1, 0.36, 1)), visibility 0s;
+  }
+  .eges__product-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
+  .eges__info {
+    padding: 1rem 1.5rem clamp(1.25rem, 3.5%, 2.25rem);
+    text-align: center;
+  }
+  .eges__title {
+    margin: 0 0 0.45rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 400;
+    font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+    line-height: 1.25;
+  }
+  .eges__cta {
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+  .eges__cta:hover { opacity: 0.55; }
+
+  /* Dots */
+  .eges__dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.9rem;
+    color: var(--eg-ink, #1a1a1a);
+  }
+  .eges__dot {
+    position: relative;
+    width: 14px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .eges__dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.25;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+  }
+  .eges__dot:hover::before { opacity: 0.6; }
+  .eges__dot.is-active::before { opacity: 1; }
+  .eges__dot:focus-visible { outline: 1px solid currentColor; outline-offset: -3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eges__slide, .eges__slide.is-active { transition: none; }
+  }
+  @media screen and (max-width: 989px) {
+    .eges--cols-4 .eges__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media screen and (max-width: 749px) {
+    .eges__grid,
+    .eges--cols-4 .eges__grid { grid-template-columns: 1fr; }
+  }
+{%- endstyle -%}
+
+<script>
+  (function () {
+    function setup(root) {
+      if (!root || root.dataset.egesReady) return;
+      root.dataset.egesReady = 'true';
+
+      root.querySelectorAll('[data-eges-card]').forEach(function (card) {
+        var slides = card.querySelectorAll('[data-eges-slide]');
+        var dots = card.querySelectorAll('[data-eges-dot]');
+        var media = card.querySelector('[data-eges-media]');
+        var total = dots.length;
+        if (total < 2) return;
+
+        var current = 0;
+        var swiped = false;
+
+        function go(index) {
+          current = (index + total) % total;
+          slides.forEach(function (s) {
+            s.classList.toggle('is-active', parseInt(s.dataset.egesSlide, 10) === current);
+          });
+          dots.forEach(function (d, i) {
+            var on = i === current;
+            d.classList.toggle('is-active', on);
+            if (on) { d.setAttribute('aria-current', 'true'); } else { d.removeAttribute('aria-current'); }
+          });
+        }
+
+        dots.forEach(function (dot) {
+          dot.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            go(parseInt(dot.dataset.egesDot, 10));
+          });
+        });
+
+        if (media) {
+          var startX = 0;
+          var startY = 0;
+          media.addEventListener('touchstart', function (e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          }, { passive: true });
+          media.addEventListener('touchend', function (e) {
+            var dx = e.changedTouches[0].clientX - startX;
+            var dy = e.changedTouches[0].clientY - startY;
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+              swiped = true;
+              go(dx < 0 ? current + 1 : current - 1);
+              setTimeout(function () { swiped = false; }, 400);
+            }
+          }, { passive: true });
+          media.addEventListener('click', function (e) {
+            if (swiped) { e.preventDefault(); }
+          });
+        }
+      });
+    }
+
+    function init() {
+      setup(document.getElementById('eges-{{ section.id }}'));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+    document.addEventListener('shopify:section:load', function (e) {
+      setup(e.target.querySelector('.eges'));
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "EG Editorial Story",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 8,
+  "settings": [
+    { "type": "paragraph", "content": "Simon's section 04. Add Photo and Product blocks in the order they should appear. Simon's layout: Photo, Product, Product, Photo." },
+    { "type": "select", "id": "columns", "label": "Layout", "options": [
+      { "value": "2", "label": "2 across (checkerboard)" },
+      { "value": "4", "label": "4 across (one row)" }
+    ], "default": "2" },
+    { "type": "color", "id": "tile_bg", "label": "Product tile background", "default": "#F8F6F6" },
+    { "type": "range", "id": "max_images", "min": 1, "max": 8, "step": 1, "label": "Images per product", "info": "How many product images the dots cycle through.", "default": 6 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "pad_top", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 0 },
+    { "type": "range", "id": "pad_bottom", "min": 0, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 0 }
+  ],
+  "blocks": [
+    {
+      "type": "lifestyle",
+      "name": "Photo",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "headline", "label": "Headline", "info": "Optional, e.g. Ceramicist. Glassblower. Metalsmith." },
+        { "type": "text", "id": "caption", "label": "Caption", "default": "Mokume Gane | Arn Krebs" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "title", "label": "Title", "info": "Leave blank to use the product name." },
+        { "type": "text", "id": "link_label", "label": "Link text", "default": "Explore Entire Collection" },
+        { "type": "url", "id": "link", "label": "Link", "info": "Leave blank to link to the product." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "EG Editorial Story",
+      "blocks": [
+        { "type": "lifestyle" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "lifestyle", "settings": { "caption": "Handpainted Scarves | Maria Testa" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

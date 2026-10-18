@@ -1,0 +1,204 @@
+{%- comment -%}
+  EG Artisan Products — eg-artisan-products.liquid
+  Three static product boxes. Sits under the artisan video.
+  Products chosen in the editor via blocks — no slider, no code.
+{%- endcomment -%}
+
+<div class="egap eg-reveal" style="background: {{ section.settings.bg }};">
+  {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+    <div class="egap__head">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="egap__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2 class="egap__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="egap__grid">
+    {%- for block in section.blocks -%}
+      {%- assign p = block.settings.product -%}
+      <article class="egap__item" {{ block.shopify_attributes }}>
+        {%- if p != blank -%}
+          <a class="egap__link" href="{{ p.url }}">
+            <div class="egap__media">
+              {%- if p.featured_image != blank -%}
+                {{ p.featured_image | image_url: width: 1400 | image_tag:
+                   loading: 'lazy',
+                   sizes: '(min-width: 750px) 33vw, 90vw',
+                   widths: '500, 800, 1100, 1400',
+                   class: 'egap__img',
+                   alt: p.featured_image.alt | default: p.title }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'egap__img' }}
+              {%- endif -%}
+            </div>
+
+            <div class="egap__info">
+              <h3 class="egap__title">{{ p.title }}</h3>
+              {%- if block.settings.show_price -%}
+                <p class="egap__price">{{ p.price | money }}</p>
+              {%- endif -%}
+            </div>
+          </a>
+        {%- else -%}
+          <div class="egap__media">
+            {{ 'product-1' | placeholder_svg_tag: 'egap__img' }}
+          </div>
+          <div class="egap__info">
+            <h3 class="egap__title">Select a product</h3>
+          </div>
+        {%- endif -%}
+      </article>
+    {%- endfor -%}
+  </div>
+
+  {%- if section.settings.link_label != blank -%}
+    <div class="egap__foot">
+      <a class="egap__cta" href="{{ section.settings.link_url }}">
+        <span>{{ section.settings.link_label }}</span>
+      </a>
+    </div>
+  {%- endif -%}
+</div>
+
+{%- style -%}
+  .egap {
+    padding: {{ section.settings.pad_top }}rem clamp(1.5rem, 5vw, 5rem) {{ section.settings.pad_bottom }}rem;
+  }
+
+  .egap__head {
+    text-align: center;
+    max-width: 52ch;
+    margin: 0 auto clamp(3rem, 6vw, 5rem);
+  }
+  .egap__eyebrow {
+    margin: 0 0 1.25rem;
+    font-family: var(--eg-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .egap__heading {
+    margin: 0;
+    font-family: var(--eg-serif);
+    font-weight: 300;
+    font-size: clamp(2rem, 3.4vw, 3.4rem);
+    line-height: 1.1;
+  }
+
+  .egap__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 4vw, 4.5rem);
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .egap__link { display: block; text-decoration: none; color: inherit; }
+
+  .egap__media {
+    overflow: hidden;
+    background: #f6f5f3;
+    aspect-ratio: {{ section.settings.ratio }};
+    margin-bottom: 1.75rem;
+  }
+  .egap__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 1.5s var(--eg-ease);
+  }
+  .egap__item:hover .egap__img { transform: scale(1.04); }
+
+  .egap__info { text-align: {{ section.settings.text_align }}; }
+
+  .egap__title {
+    margin: 0 0 0.6rem;
+    font-family: var(--eg-serif);
+    font-weight: 300;
+    font-size: clamp(1.35rem, 1.7vw, 1.75rem);
+    line-height: 1.25;
+    transition: opacity 0.4s var(--eg-ease);
+  }
+  .egap__item:hover .egap__title { opacity: 0.55; }
+
+  .egap__price {
+    margin: 0;
+    font-family: var(--eg-sans);
+    font-size: 0.92rem;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+
+  .egap__foot { text-align: center; margin-top: clamp(3rem, 6vw, 5rem); }
+  .egap__cta {
+    font-family: var(--eg-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+  }
+  .egap__cta span {
+    display: inline-block;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid currentColor;
+    transition: opacity 0.4s var(--eg-ease);
+  }
+  .egap__cta:hover span { opacity: 0.5; }
+
+  @media screen and (max-width: 989px) {
+    .egap__grid { gap: 2rem; }
+  }
+  @media screen and (max-width: 749px) {
+    .egap__grid { grid-template-columns: 1fr; gap: 3rem; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Artisan Products",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 3,
+  "settings": [
+    { "type": "paragraph", "content": "Three static product boxes. Place directly under the artisan video section." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "From the Studio" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Pieces by this artisan" },
+    { "type": "select", "id": "ratio", "label": "Image shape", "options": [
+      { "value": "3 / 4", "label": "Portrait" },
+      { "value": "1 / 1", "label": "Square" },
+      { "value": "4 / 5", "label": "Tall square" }
+    ], "default": "3 / 4" },
+    { "type": "select", "id": "text_align", "label": "Text alignment", "options": [
+      { "value": "left", "label": "Left" },
+      { "value": "center", "label": "Centre" }
+    ], "default": "center" },
+    { "type": "text", "id": "link_label", "label": "Link text", "default": "View all pieces" },
+    { "type": "url", "id": "link_url", "label": "Link" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#FFFFFF" },
+    { "type": "range", "id": "pad_top", "min": 2, "max": 16, "step": 1, "unit": "rem", "label": "Space above", "default": 8 },
+    { "type": "range", "id": "pad_bottom", "min": 2, "max": 16, "step": 1, "unit": "rem", "label": "Space below", "default": 10 }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "checkbox", "id": "show_price", "label": "Show price", "default": true }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "EG Artisan Products",
+      "blocks": [ { "type": "product" }, { "type": "product" }, { "type": "product" } ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,113 @@
+{%- comment -%}
+  EG Artisan Header — eg-artisan-header.liquid
+  For collections representing a single artisan.
+  Reads from the COLLECTION's metafields (namespace: artisan).
+{%- endcomment -%}
+
+{%- liquid
+  assign a_name = collection.metafields.artisan.name.value
+  assign a_media = collection.metafields.artisan.media.value
+  assign a_story = collection.metafields.artisan.story.value
+  assign a_quote = collection.metafields.artisan.quote.value
+-%}
+
+<div class="egah eg-reveal">
+  <div class="egah__media">
+    {%- if a_media != blank -%}
+      {%- if a_media.media_type == 'video' -%}
+        <video class="egah__vid" autoplay muted loop playsinline>
+          <source src="{{ a_media.sources[1].url }}" type="video/mp4">
+        </video>
+      {%- else -%}
+        {{ a_media | image_url: width: 1200 | image_tag:
+           loading: 'eager', sizes: '(min-width: 750px) 40vw, 100vw',
+           widths: '400, 700, 1000, 1200',
+           class: 'egah__img', alt: a_name | default: collection.title }}
+      {%- endif -%}
+    {%- elsif collection.image != blank -%}
+      {{ collection.image | image_url: width: 1200 | image_tag:
+         loading: 'eager', class: 'egah__img', alt: collection.title }}
+    {%- endif -%}
+  </div>
+
+  <div class="egah__content">
+    <p class="egah__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 class="egah__name">{{ a_name | default: collection.title }}</h1>
+
+    {%- if a_story != blank -%}
+      <div class="egah__story">{{ a_story }}</div>
+    {%- endif -%}
+
+    {%- if a_quote != blank -%}
+      <p class="egah__quote">&ldquo;{{ a_quote }}&rdquo;</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- style -%}
+  .egah {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    align-items: center;
+    gap: clamp(2.5rem, 5vw, 6rem);
+    padding: clamp(3rem, 6vw, 6rem) var(--eg-gutter, clamp(1.5rem, 5vw, 5rem));
+    border-bottom: 1px solid var(--eg-hairline, rgba(26,26,26,0.14));
+  }
+  .egah__media {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #f5f4f2;
+  }
+  .egah__img,
+  .egah__vid { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .egah__eyebrow {
+    margin: 0 0 1.25rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .egah__name {
+    margin: 0 0 1.75rem;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 300;
+    font-size: clamp(2.25rem, 4vw, 4rem);
+    line-height: 1.08;
+  }
+  .egah__story {
+    max-width: 62ch;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 1rem;
+    line-height: 1.9;
+    opacity: 0.82;
+  }
+  .egah__story p { margin: 0 0 1.25rem; }
+  .egah__quote {
+    margin: 2rem 0 0;
+    max-width: 50ch;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.4rem;
+    line-height: 1.5;
+    color: var(--eg-aubergine, #5b2545);
+  }
+  @media screen and (max-width: 749px) {
+    .egah { grid-template-columns: 1fr; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Artisan Header",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Only use on collections representing a single artisan. Fill the collection's metafields (namespace: artisan)." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Artisan" }
+  ],
+  "presets": [ { "name": "EG Artisan Header" } ]
+}
+{% endschema %}

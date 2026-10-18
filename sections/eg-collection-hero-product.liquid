@@ -1,0 +1,95 @@
+{%- liquid
+  assign img = section.settings.image_override
+  if img == blank
+    assign img = collection.image
+  endif
+-%}
+
+<div class="eghero" style="--eghero-h: {{ section.settings.height }}vh;">
+  {%- if img != blank -%}
+    <div class="eghero__media">
+      {{ img | image_url: width: 3000 | image_tag:
+         loading: 'eager', sizes: '100vw',
+         widths: '750, 1100, 1500, 2000, 3000',
+         class: 'eghero__img', alt: collection.title }}
+    </div>
+    <div class="eghero__veil" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="eghero__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="eghero__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="eghero__title">{{ collection.title | default: 'Products' }}</h1>
+    {%- if section.settings.show_description and collection.description != blank -%}
+      <div class="eghero__desc">{{ collection.description }}</div>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- style -%}
+  .eghero {
+    position: relative;
+    width: 100%;
+    min-height: var(--eghero-h, 55vh);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  .eghero__media { position: absolute; inset: 0; z-index: 0; }
+  .eghero__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .eghero__veil {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to top,
+      rgba(26,26,26,0.55) 0%,
+      rgba(26,26,26,0.22) 45%,
+      rgba(26,26,26,0) 100%);
+  }
+  .eghero__inner {
+    position: relative; z-index: 2; width: 100%;
+    padding: clamp(3rem, 7vw, 6rem) var(--eg-gutter, clamp(1.5rem, 5vw, 5rem));
+    color: #fff;
+  }
+  .eghero__eyebrow {
+    margin: 0 0 1.25rem;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 0.78rem; letter-spacing: 0.26em;
+    text-transform: uppercase; opacity: 0.85;
+  }
+  .eghero__title {
+    margin: 0;
+    font-family: var(--eg-serif, 'Cormorant Garamond', serif);
+    font-weight: 300;
+    font-size: clamp(3rem, 6.5vw, 6rem);
+    line-height: 1.02; letter-spacing: 0.01em;
+  }
+  .eghero__desc {
+    margin: 1.75rem 0 0; max-width: 52ch;
+    font-family: var(--eg-sans, Inter, sans-serif);
+    font-size: 1.02rem; line-height: 1.85; opacity: 0.9;
+  }
+  .eghero:not(:has(.eghero__media)) {
+    min-height: 0;
+    padding-top: clamp(3rem, 6vw, 6rem);
+    background: #fff;
+    border-bottom: 1px solid var(--eg-hairline, rgba(26,26,26,0.14));
+  }
+  .eghero:not(:has(.eghero__media)) .eghero__inner { color: var(--eg-ink, #1a1a1a); }
+  @media screen and (max-width: 749px) { .eghero { min-height: 42vh; } }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Collection Hero",
+  "tag": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Uses the collection's own image. Set it under Products > Collections > Image." },
+    { "type": "image_picker", "id": "image_override", "label": "Image override" },
+    { "type": "range", "id": "height", "min": 30, "max": 90, "step": 5, "unit": "vh", "label": "Height", "default": 55 },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Collection" },
+    { "type": "checkbox", "id": "show_description", "label": "Show description", "default": true }
+  ],
+  "presets": [ { "name": "EG Collection Hero" } ]
+}
+{% endschema %}

@@ -1,0 +1,63 @@
+<section class="egv" style="--egv-h: {{ section.settings.height }}vh; --egv-frame: {{ section.settings.frame }}px;">
+  <div class="egv__frame">
+    <div class="egv__media eg-parallax">
+      {%- if section.settings.video != null -%}
+        {{ section.settings.video | video_tag: autoplay: true, loop: true, muted: true, controls: false, playsinline: true }}
+      {%- elsif section.settings.poster != blank -%}
+        {{ section.settings.poster | image_url: width: 2600 | image_tag: loading: 'eager', sizes: '100vw', widths: '800,1200,1600,2000,2600', alt: '' }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+    <div class="egv__content egv__content--{{ section.settings.tone }} eg-reveal">
+      {%- if section.settings.eyebrow != blank -%}<p class="eg-eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+      {%- if section.settings.heading != blank -%}<h1 class="eg-display">{{ section.settings.heading }}</h1>{%- endif -%}
+      {%- if section.settings.cta_label != blank -%}
+        <a class="eg-link" href="{{ section.settings.cta_url | default: '#' }}">{{ section.settings.cta_label }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{%- style -%}
+  .egv { background: #FFFFFF; padding: var(--egv-frame) var(--egv-frame) var(--egv-frame); }
+  .egv__frame { position: relative; height: var(--egv-h); overflow: hidden; }
+  .egv__media { position: absolute; inset: 0; }
+  .egv__media video, .egv__media img, .egv__media svg {
+    width: 100%; height: 116%; object-fit: cover; position: absolute; top: -8%; left: 0;
+  }
+  .egv__content {
+    position: absolute; z-index: 2;
+    left: clamp(1.5rem, 4vw, 4.5rem); bottom: clamp(2rem, 5vw, 4.5rem);
+    display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start;
+    max-width: 52ch;
+  }
+  .egv__content--light { color: #FFF; text-shadow: 0 1px 18px rgba(0,0,0,0.3); }
+  .egv__content--dark { color: #111; }
+  @media screen and (max-width: 749px) {
+    .egv { padding: 0; }
+    .egv__frame { min-height: 82vh; }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Hero Video",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "video", "id": "video", "label": "Video (autoplay, muted, loop)" },
+    { "type": "image_picker", "id": "poster", "label": "Fallback image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "text", "id": "cta_label", "label": "Link label", "default": "Discover" },
+    { "type": "url", "id": "cta_url", "label": "Link" },
+    { "type": "select", "id": "tone", "label": "Text color", "options": [
+      { "value": "light", "label": "Light" }, { "value": "dark", "label": "Dark" }
+    ], "default": "light" },
+    { "type": "range", "id": "height", "label": "Height", "min": 60, "max": 100, "step": 5, "unit": "vh", "default": 90 },
+    { "type": "range", "id": "frame", "label": "White frame thickness", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 6 }
+  ],
+  "presets": [ { "name": "EG Hero Video" } ]
+}
+{% endschema %}
