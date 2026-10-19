@@ -27,6 +27,27 @@
   endif
 -%}
 
+{%- liquid
+  comment
+    Link to the artisan's page: the product's collection that uses the "artisan" template,
+    or else the collection whose handle matches the artisan entry (e.g. julia-pappas).
+  endcomment
+  assign a_url = blank
+  for c in product.collections
+    if c.template_suffix == 'artisan'
+      assign a_url = c.url
+      break
+    endif
+  endfor
+  if a_url == blank and artisan.system.handle != blank
+    assign a_coll = collections[artisan.system.handle]
+    if a_coll.id != blank
+      assign a_url = a_coll.url
+    endif
+  endif
+  assign a_first = a_name | split: ' ' | first
+-%}
+
 {%- if a_name != blank or a_bio != blank or a_portrait != blank -%}
 <section class="egart eg-reveal" style="--egart-bg: {{ section.settings.bg_color }};">
   <div class="egart__grid egart__grid--{{ section.settings.portrait_side }}">
@@ -35,7 +56,9 @@
         <p class="eg-eyebrow egart__eyebrow">{{ section.settings.eyebrow }}</p>
       {%- endif -%}
       {%- if a_name != blank -%}
-        <h2 class="egart__name">{{ a_name }}</h2>
+        <h2 class="egart__name">
+          {%- if a_url != blank -%}<a href="{{ a_url }}" class="egart__name-link">{{ a_name }}</a>{%- else -%}{{ a_name }}{%- endif -%}
+        </h2>
       {%- endif -%}
       {%- if a_quote != blank -%}
         <p class="egart__quote">{{ a_quote }}</p>
@@ -45,6 +68,8 @@
       {%- endif -%}
       {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
         <a class="eg-link egart__link" href="{{ section.settings.cta_url }}">{{ section.settings.cta_label }}</a>
+      {%- elsif a_url != blank -%}
+        <a class="eg-link egart__link" href="{{ a_url }}">Discover {{ a_first }}&rsquo;s collection &rarr;</a>
       {%- endif -%}
     </div>
     <div class="egart__media eg-hover-zoom">
@@ -68,6 +93,8 @@
   .egart__grid--left .egart__media { order: -1; }
   .egart__text { display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-start; color: #1A1A1A; }
   .egart__eyebrow { color: var(--eg-aubergine); }
+  .egart__name-link { color: inherit; text-decoration: none; background-image: linear-gradient(currentColor, currentColor); background-size: 0 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size 0.3s ease; }
+  .egart__name-link:hover { background-size: 100% 1px; }
   .egart__name {
     font-family: var(--eg-serif); font-weight: 300;
     font-size: clamp(2.75rem, 4.5vw, 4.5rem); line-height: 1;

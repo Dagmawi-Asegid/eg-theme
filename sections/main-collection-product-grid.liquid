@@ -1,6 +1,8 @@
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'eg-collection-grid.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'eg-collection-grid.js' | asset_url }}" defer="defer"></script>
 
 {% if section.settings.image_shape == 'blob' %}
   {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
@@ -162,8 +164,18 @@
                   {%- if forloop.index > 2 -%}
                     {%- assign lazy_load = true -%}
                   {%- endif -%}
+                  {%- liquid
+                    assign eg_position = paginate.current_offset | plus: forloop.index
+                    assign eg_feature = false
+                    if section.settings.highlight_every > 0
+                      assign eg_mod = eg_position | modulo: section.settings.highlight_every
+                      if eg_mod == 0
+                        assign eg_feature = true
+                      endif
+                    endif
+                  -%}
                   <li
-                    class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                    class="grid__item{% if eg_feature %} eg-feature{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
                     {% if settings.animations_reveal_on_scroll %}
                       data-cascade
                       style="--animation-order: {{ forloop.index }};"
@@ -188,7 +200,21 @@
               </ul>
 
               {%- if paginate.pages > 1 -%}
-                {% render 'pagination', paginate: paginate, anchor: '' %}
+                {%- if section.settings.load_more -%}
+                  {%- liquid
+                    assign eg_shown = paginate.current_offset | plus: collection.products.size
+                  -%}
+                  <div class="eg-load-more" data-eg-load-more>
+                    <p class="eg-load-more__count">
+                      <span data-eg-shown>{{ eg_shown }}</span> of {{ paginate.items }} pieces
+                    </p>
+                    {%- if paginate.next -%}
+                      <a class="eg-load-more__btn" href="{{ paginate.next.url }}" data-eg-next>Load more</a>
+                    {%- endif -%}
+                  </div>
+                {%- else -%}
+                  {% render 'pagination', paginate: paginate, anchor: '' %}
+                {%- endif -%}
               {%- endif -%}
             </div>
           {%- endif -%}
@@ -380,6 +406,25 @@
       ],
       "default": "horizontal",
       "label": "t:sections.main-collection-product-grid.settings.filter_type.label"
+    },
+    {
+      "type": "header",
+      "content": "EG grid"
+    },
+    {
+      "type": "checkbox",
+      "id": "load_more",
+      "default": true,
+      "label": "Use a Load more button instead of page numbers"
+    },
+    {
+      "type": "range",
+      "id": "highlight_every",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "default": 5,
+      "label": "Large highlight image every Nth product (0 = off)"
     },
     {
       "type": "checkbox",

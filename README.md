@@ -30,7 +30,14 @@ Custom EG sections are prefixed `eg-`.
   - click image → full-screen viewer with "← Back" (top left), image counter, arrows, click to zoom 2.2× and pan; Esc / arrow keys
 - `sections/egartisanproduct.liquid`: reads the linked **Artisan metaobject** (name, portrait, story, quote) instead of the old empty per-product fields, so the artisan's photo, quote and story now show on product pages.
 
+### 2026-10-18 — Collection grid
+- `sections/main-collection-product-grid.liquid`: new settings "EG grid" → **Load more** button (default on) instead of page numbers, with "X of Y pieces"; **large highlight card** every Nth product (default 5, 0 = off).
+- `assets/eg-collection-grid.css` + `assets/eg-collection-grid.js` (new): highlight card spans 2 columns × 2 rows (grid uses `dense` so smaller cards fill around it); Load more fetches the next page and appends it in place (falls back to a normal link without JavaScript).
+- Second image on hover: Dawn's built-in "show second image on hover" is already on — checked it works.
+
+### 2026-10-18 — Artisan name links to the artisan page
+- `sections/egartisanproduct.liquid`: the artisan's name on the product page now links to their artisan page (the product's collection that uses the `artisan` template, e.g. `/collections/julia-pappas`; falls back to the collection whose handle matches the artisan entry). Adds a "Discover Julia's collection →" link under the story when no manual link is set in the section settings.
+
 ## Next
 - Image rotation animation (Daniel)
-- Collection pages: load more, large highlight image in grid, second image on hover
 - Images in the filter menu (Quince-style)
