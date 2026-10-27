@@ -9,6 +9,35 @@
   assign a_media = collection.metafields.artisan.media.value
   assign a_story = collection.metafields.artisan.story.value
   assign a_quote = collection.metafields.artisan.quote.value
+
+  comment
+    Fallback: if the collection's own artisan fields are empty, read the
+    Artisan metaobject linked from the collection's products
+    (custom.artisan), which is where the artisan's portrait and story live.
+  endcomment
+  if a_name == blank or a_story == blank or a_media == blank
+    assign ao = blank
+    for p in collection.products limit: 10
+      assign ao = p.metafields.custom.artisan.value
+      if ao != blank
+        break
+      endif
+    endfor
+    if ao != blank
+      if a_name == blank
+        assign a_name = ao.name.value | default: ao.name
+      endif
+      if a_story == blank
+        assign a_story = ao.story.value
+      endif
+      if a_quote == blank
+        assign a_quote = ao.quote.value
+      endif
+      if a_media == blank
+        assign a_media = ao.portrait.value
+      endif
+    endif
+  endif
 -%}
 
 <div class="egah eg-reveal">
@@ -35,7 +64,7 @@
     <h1 class="egah__name">{{ a_name | default: collection.title }}</h1>
 
     {%- if a_story != blank -%}
-      <div class="egah__story">{{ a_story }}</div>
+      <div class="egah__story">{{ a_story | newline_to_br }}</div>
     {%- endif -%}
 
     {%- if a_quote != blank -%}

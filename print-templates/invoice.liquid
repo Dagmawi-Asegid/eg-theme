@@ -1,0 +1,154 @@
+<div class="eg-inv">
+  <header class="eg-head">
+    <img class="eg-logo" src="https://eugenia-grace-2.myshopify.com/cdn/shop/files/eugenia_grace_final_tissue_paper_logo.png?width=600" alt="Eugenia Grace">
+    <p class="eg-tagline">The Luxury of Handmade</p>
+  </header>
+
+  <div class="eg-meta">
+    <div>
+      <p class="eg-label">Invoice</p>
+      <p>{{ order.order_name }}</p>
+    </div>
+    <div>
+      <p class="eg-label">Date</p>
+      <p>{{ order.created_at | date: "%B %e, %Y" }}</p>
+    </div>
+    {% if order.po_number %}
+      <div>
+        <p class="eg-label">PO number</p>
+        <p>{{ order.po_number }}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="eg-addresses">
+    <div>
+      <p class="eg-label">From</p>
+      <p class="eg-address">Eugenia Grace<br>{{ shop_address | format_address }}{% if shop.phone %}{{ shop.phone }}{% endif %}</p>
+    </div>
+    {% if billing_address %}
+      <div>
+        <p class="eg-label">Bill to</p>
+        <p class="eg-address">{{ billing_address | format_address }}</p>
+      </div>
+    {% endif %}
+    {% if shipping_address %}
+      <div>
+        <p class="eg-label">Ship to</p>
+        <p class="eg-address">{{ shipping_address | format_address }}{% if shipping_address.phone %}{{ shipping_address.phone }}{% endif %}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th class="eg-label">Piece</th>
+        <th class="eg-label eg-c">Qty</th>
+        <th class="eg-label eg-r">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line_item in order.line_items %}
+        <tr class="eg-row">
+          <td>
+            <span class="eg-item-title">{{ line_item.title }}</span>
+            {% if line_item.line_level_discount_allocations.size > 0 %}
+              {% for discount_allocation in line_item.line_level_discount_allocations %}
+                <br><span class="eg-small">{{ discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})</span>
+              {% endfor %}
+            {% endif %}
+          </td>
+          <td class="eg-c">{{ line_item.quantity }}</td>
+          <td class="eg-r">
+            {% if line_item.original_price != line_item.final_price %}
+              <span class="eg-small"><s>{{ line_item.original_price | money }}</s></span>
+            {% endif %}
+            {{ line_item.final_price | money }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="eg-totals">
+    <tr><td>Subtotal</td><td class="eg-r">{{ order.line_items_subtotal_price | money }}</td></tr>
+    {% assign shipping_discount_total = order.shipping_price | minus: order.shipping_price %}
+    {% for discount_application in order.discount_applications %}
+      {% if discount_application.target_type == 'shipping_line' %}
+        {% assign shipping_discount_total = shipping_discount_total | plus: discount_application.total_allocated_amount %}
+      {% endif %}
+      {% if discount_application.target_selection == 'all' and discount_application.target_type != 'shipping_line' %}
+        <tr><td>{% if discount_application.title %}{{ discount_application.title }}{% else %}Discount{% endif %}</td><td class="eg-r">-{{ discount_application.total_allocated_amount | money }}</td></tr>
+      {% endif %}
+    {% endfor %}
+    {% assign discounted_shipping_price = order.shipping_price | minus: shipping_discount_total %}
+    <tr><td>Tax</td><td class="eg-r">{{ order.tax_price | money }}</td></tr>
+    {% if order.shipping_address %}
+      {% assign discounted_shipping_price_abs = discounted_shipping_price | abs %}
+      <tr><td>Shipping</td><td class="eg-r">{% if discounted_shipping_price_abs < 1 %}Complimentary{% else %}{{ discounted_shipping_price | money }}{% endif %}</td></tr>
+    {% endif %}
+    <tr class="eg-total"><td>Total</td><td class="eg-r">{{ order.total_price | money }}</td></tr>
+    {% if order.net_payment != order.total_net_amount %}
+      <tr><td>Total paid</td><td class="eg-r">{{ order.net_payment | money }}</td></tr>
+    {% endif %}
+    {% if order.total_refunded_amount > 0 %}
+      <tr><td>Total refunded</td><td class="eg-r">-{{ order.total_refunded_amount | money }}</td></tr>
+    {% endif %}
+    {% if order.net_payment != order.total_net_amount %}
+      <tr class="eg-total"><td>Outstanding amount</td><td class="eg-r">{{ order.total_net_amount | minus: order.net_payment | money }}</td></tr>
+    {% endif %}
+  </table>
+
+  {% if transactions.size > 1 %}
+    <p class="eg-label eg-section">Transactions</p>
+    <table class="eg-table">
+      <thead><tr><th class="eg-label">Type</th><th class="eg-label">Amount</th><th class="eg-label">Kind</th><th class="eg-label">Status</th></tr></thead>
+      <tbody>
+        {% for transaction in transactions %}
+          <tr class="eg-row"><td>{{ transaction.gateway_display_name }}</td><td>{{ transaction.amount | money }}</td><td>{{ transaction.kind }}</td><td>{{ transaction.status }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  {% if order.note %}
+    <p class="eg-label eg-section">Note</p>
+    <p>{{ order.note }}</p>
+  {% endif %}
+
+  <footer class="eg-foot">
+    <p class="eg-thanks">Made by hand, kept for a lifetime.</p>
+    <p class="eg-small">Questions about your order? Write to us at {{ shop.email }}</p>
+  </footer>
+</div>
+
+<style type="text/css">
+  html, body { margin: 0; padding: 0; background: none; }
+  body { font-size: 12px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; line-height: 1.5; }
+  * { box-sizing: border-box; }
+  .eg-inv p { margin: 0; }
+  .eg-head { text-align: center; padding-bottom: 22px; border-bottom: 1px solid #1a1a1a; }
+  .eg-logo { display: block; height: 58px; width: auto; margin: 0 auto 6px; }
+  .eg-mark { font-family: "Cormorant Garamond", "Didot", "Bodoni 72", Georgia, serif; font-size: 30px; letter-spacing: 0.32em; text-transform: uppercase; font-weight: 400; }
+  .eg-tagline { margin-top: 4px !important; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #6b6b6b; }
+  .eg-label { font-size: 9px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 4px !important; }
+  .eg-meta { display: flex; gap: 48px; padding: 18px 0; border-bottom: 1px solid #e4e1dc; }
+  .eg-addresses { display: flex; gap: 36px; padding: 18px 0 22px; }
+  .eg-addresses > div { flex: 1; }
+  .eg-address { font-size: 11px; }
+  .eg-address p { margin: 0; }
+  .eg-table { width: 100%; border-collapse: collapse; border-top: 1px solid #1a1a1a; }
+  .eg-table th { text-align: left; padding: 12px 0 6px; }
+  .eg-row td { padding: 12px 0; border-top: 1px solid #e4e1dc; vertical-align: top; }
+  .eg-item-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 15px; }
+  .eg-small { font-size: 10px; color: #6b6b6b; }
+  .eg-c { text-align: center !important; width: 60px; }
+  .eg-r { text-align: right !important; }
+  .eg-totals { width: 45%; margin: 18px 0 0 auto; border-collapse: collapse; }
+  .eg-totals td { padding: 4px 0; }
+  .eg-total td { border-top: 1px solid #1a1a1a; padding-top: 10px; font-weight: 600; }
+  .eg-section { margin-top: 24px !important; }
+  .eg-foot { margin-top: 36px; padding-top: 22px; border-top: 1px solid #1a1a1a; text-align: center; }
+  .eg-thanks { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 18px; margin-bottom: 6px !important; }
+</style>

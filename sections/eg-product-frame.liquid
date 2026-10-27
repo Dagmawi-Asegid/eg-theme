@@ -1,0 +1,281 @@
+{%- comment -%}
+  EG Product Frame — sections/eg-product-frame.liquid
+  Hermès-style product page: everything sits inside one wide frame.
+  - "← Back" top-left, thumbnails inside the frame bottom-left.
+  - 2 images: images take the left two-thirds, the buy box the right third.
+  - 3+ images: images run edge to edge, the buy box floats over the third one.
+  Only used by templates/product.frame.json, so other products are untouched.
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign media_count = product.media.size
+  assign show_count = section.settings.images_shown | plus: 0
+  if media_count < show_count
+    assign show_count = media_count
+  endif
+  assign layout = 'two'
+  if show_count >= 3
+    assign layout = 'three'
+  endif
+  assign back_url = routes.all_products_collection_url
+  if product.collections.size > 0
+    assign back_url = product.collections.first.url
+  endif
+-%}
+
+<section class="egpf egpf--{{ layout }}" id="egpf-{{ section.id }}" data-egpf
+  style="--egpf-h: {{ section.settings.frame_height }}vh; --egpf-bg: {{ section.settings.frame_bg }};">
+  <div class="egpf__frame">
+    <a class="egpf__back" href="{{ back_url }}" data-egpf-back>&larr; Back</a>
+
+    <div class="egpf__stage" data-egpf-stage>
+      {%- for media in product.media limit: show_count -%}
+        <div class="egpf__slot" data-egpf-slot="{{ forloop.index0 }}" data-media-id="{{ media.id }}">
+          {{ media | image_url: width: 1600 | image_tag:
+             loading: 'eager', sizes: '(min-width: 990px) 33vw, 100vw',
+             widths: '600, 900, 1200, 1600', class: 'egpf__img', alt: media.alt | default: product.title }}
+        </div>
+      {%- else -%}
+        <div class="egpf__slot">{{ 'product-1' | placeholder_svg_tag: 'egpf__img' }}</div>
+      {%- endfor -%}
+    </div>
+
+    {%- if media_count > 1 -%}
+      <div class="egpf__thumbs" role="list">
+        {%- for media in product.media -%}
+          <button type="button" class="egpf__thumb{% if forloop.first %} is-active{% endif %}" role="listitem"
+            data-egpf-thumb data-src="{{ media | image_url: width: 1600 }}" data-media-id="{{ media.id }}"
+            aria-label="Show image {{ forloop.index }}">
+            {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="egpf__buy">
+      {%- if product.vendor != blank and section.settings.show_vendor -%}
+        <p class="egpf__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+      <h1 class="egpf__title">{{ product.title }}</h1>
+      <p class="egpf__price" data-egpf-price>{{ current_variant.price | money }}</p>
+
+      {%- form 'product', product, class: 'egpf__form', data-egpf-form: '' -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" data-egpf-id>
+
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            <fieldset class="egpf__option">
+              <legend class="egpf__label">{{ option.name }} <span data-egpf-chosen="{{ forloop.index0 }}">{{ option.selected_value }}</span></legend>
+              <div class="egpf__pills">
+                {%- for value in option.values -%}
+                  {%- assign sw_media = value.variant.featured_media -%}
+                  <button type="button" class="egpf__pill{% if sw_media %} egpf__pill--swatch{% endif %}{% if value.selected %} is-active{% endif %}"
+                    data-egpf-opt="{{ forloop.parentloop.index0 }}" data-value="{{ value.name | escape }}"
+                    title="{{ value.name | escape }}" aria-label="{{ option.name | escape }}: {{ value.name | escape }}">
+                    {%- if sw_media -%}
+                      {{ sw_media | image_url: width: 160 | image_tag: loading: 'lazy', alt: value.name }}
+                    {%- else -%}
+                      {{ value.name }}
+                    {%- endif -%}
+                  </button>
+                {%- endfor -%}
+              </div>
+            </fieldset>
+          {%- endfor -%}
+        {%- endunless -%}
+
+        <button type="submit" name="add" class="egpf__add" data-egpf-add
+          {% unless current_variant.available %}disabled{% endunless %}>
+          {%- if current_variant.available -%}Add to cart{%- else -%}Sold out{%- endif -%}
+        </button>
+        {%- if section.settings.show_dynamic_checkout -%}
+          <div class="egpf__pay">{{ form | payment_button }}</div>
+        {%- endif -%}
+      {%- endform -%}
+
+      {%- if section.settings.show_description and product.description != blank -%}
+        <details class="egpf__details">
+          <summary>Description</summary>
+          <div class="egpf__desc">{{ product.description }}</div>
+        </details>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <script type="application/json" data-egpf-variants>
+    {{ product.variants | json }}
+  </script>
+</section>
+
+{%- style -%}
+  #egpf-{{ section.id }} { padding: 1.5rem var(--eg-gutter, clamp(1rem, 3vw, 3rem)) 3rem; }
+  .egpf__frame {
+    position: relative;
+    height: var(--egpf-h, 82vh);
+    min-height: 520px;
+    background: var(--egpf-bg, #F8F6F6);
+    overflow: hidden;
+  }
+  .egpf__back {
+    position: absolute; top: 1.25rem; left: 1.5rem; z-index: 4;
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #1a1a1a; text-decoration: none;
+  }
+  .egpf__back:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  .egpf__stage { position: absolute; inset: 0; display: grid; }
+  .egpf__slot { position: relative; overflow: hidden; }
+  .egpf__img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .35s ease; }
+
+  /* 2 images: images in the left two-thirds, buy box in the right third */
+  .egpf--two .egpf__stage { grid-template-columns: 1fr 1fr; right: 33.333%; }
+  /* 3+ images: three equal columns across the full frame; buy box floats over the third */
+  .egpf--three .egpf__stage { grid-template-columns: repeat(3, 1fr); }
+  .egpf--three .egpf__slot:nth-child(n+4) { display: none; }
+
+  .egpf__thumbs {
+    position: absolute; left: 1.5rem; bottom: 1.25rem; z-index: 4;
+    display: flex; gap: 0.5rem; max-width: 60%; overflow-x: auto;
+  }
+  .egpf__thumb {
+    flex: 0 0 56px; width: 56px; height: 56px; padding: 0; border: 1px solid transparent;
+    background: #fff; cursor: pointer; opacity: 0.7;
+  }
+  .egpf__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .egpf__thumb.is-active, .egpf__thumb:hover { border-color: #1a1a1a; opacity: 1; }
+
+  .egpf__buy {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 33.333%; z-index: 3;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 2.5rem clamp(1.5rem, 3vw, 3rem);
+    background: var(--egpf-bg, #F8F6F6);
+    overflow-y: auto;
+  }
+  .egpf--three .egpf__buy {
+    top: 50%; bottom: auto; right: 2rem; width: calc(33.333% - 4rem);
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(6px);
+    max-height: calc(100% - 4rem);
+  }
+  .egpf__vendor { margin: 0 0 .5rem; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; opacity: .55; }
+  .egpf__title { margin: 0 0 .5rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-weight: 400; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; }
+  .egpf__price { margin: 0 0 1.5rem; font-size: .95rem; }
+  .egpf__option { border: 0; padding: 0; margin: 0 0 1.25rem; }
+  .egpf__label { font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; margin-bottom: .6rem; }
+  .egpf__label span { opacity: .6; margin-left: .4rem; text-transform: none; letter-spacing: 0; }
+  .egpf__pills { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .egpf__pill {
+    padding: .5rem .9rem; border: 1px solid rgba(26,26,26,.3); background: transparent;
+    font-size: .8rem; cursor: pointer; border-radius: 0;
+  }
+  .egpf__pill.is-active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+  .egpf__pill--swatch { width: 64px; height: 64px; padding: 3px; background: #fff; border-color: transparent; }
+  .egpf__pill--swatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .egpf__pill--swatch.is-active { background: #fff; border-color: #1a1a1a; }
+  .egpf__add {
+    width: 100%; padding: 1rem; margin-top: .5rem; border: 0; background: #1a1a1a; color: #fff;
+    font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; cursor: pointer;
+  }
+  .egpf__add[disabled] { opacity: .45; cursor: not-allowed; }
+  .egpf__pay { margin-top: .6rem; }
+  .egpf__details { margin-top: 1.5rem; border-top: 1px solid rgba(26,26,26,.15); padding-top: 1rem; font-size: .85rem; }
+  .egpf__details summary { cursor: pointer; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; }
+  .egpf__desc { margin-top: .75rem; line-height: 1.6; }
+
+  @media screen and (max-width: 989px) {
+    .egpf__frame { height: auto; min-height: 0; }
+    .egpf__stage { position: relative; inset: auto; right: auto !important; grid-template-columns: 1fr !important; aspect-ratio: 4 / 5; }
+    .egpf__slot:not(:first-child) { display: none; }
+    .egpf__thumbs { position: relative; left: auto; bottom: auto; max-width: none; padding: .75rem 1rem; }
+    .egpf__buy, .egpf--three .egpf__buy {
+      position: relative; inset: auto; width: auto; transform: none; max-height: none;
+      background: var(--egpf-bg, #F8F6F6); backdrop-filter: none;
+    }
+    .egpf__back { top: .75rem; left: 1rem; background: rgba(255,255,255,.85); padding: .35rem .6rem; }
+  }
+{%- endstyle -%}
+
+<script>
+  (function () {
+    var root = document.getElementById('egpf-{{ section.id }}');
+    if (!root) return;
+    var variants = [];
+    try { variants = JSON.parse(root.querySelector('[data-egpf-variants]').textContent); } catch (e) {}
+    var idInput = root.querySelector('[data-egpf-id]');
+    var priceEl = root.querySelector('[data-egpf-price]');
+    var addBtn = root.querySelector('[data-egpf-add]');
+    var firstImg = root.querySelector('[data-egpf-slot="0"] img');
+    var thumbs = root.querySelectorAll('[data-egpf-thumb]');
+    var moneyFormat = {{ shop.money_format | json }};
+
+    function money(cents) {
+      var v = (cents / 100).toFixed(2);
+      return moneyFormat.replace(/\{\{\s*\w+\s*\}\}/, v);
+    }
+    function showImage(src, mediaId) {
+      if (!firstImg || !src) return;
+      firstImg.style.opacity = 0;
+      setTimeout(function () {
+        firstImg.removeAttribute('srcset');
+        firstImg.src = src;
+        firstImg.style.opacity = 1;
+      }, 150);
+      thumbs.forEach(function (t) { t.classList.toggle('is-active', String(t.dataset.mediaId) === String(mediaId)); });
+    }
+    thumbs.forEach(function (t) {
+      t.addEventListener('click', function () { showImage(t.dataset.src, t.dataset.mediaId); });
+    });
+
+    var chosen = [];
+    root.querySelectorAll('.egpf__option').forEach(function (fs, i) {
+      var active = fs.querySelector('.egpf__pill.is-active');
+      chosen[i] = active ? active.dataset.value : null;
+    });
+    root.querySelectorAll('[data-egpf-opt]').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        var i = Number(pill.dataset.egpfOpt);
+        chosen[i] = pill.dataset.value;
+        pill.parentNode.querySelectorAll('.egpf__pill').forEach(function (p) { p.classList.toggle('is-active', p === pill); });
+        var label = root.querySelector('[data-egpf-chosen="' + i + '"]');
+        if (label) label.textContent = pill.dataset.value;
+        var v = variants.find(function (x) {
+          return x.options.every(function (o, k) { return chosen[k] == null || o === chosen[k]; });
+        });
+        if (!v) return;
+        idInput.value = v.id;
+        if (priceEl) priceEl.textContent = money(v.price);
+        if (addBtn) { addBtn.disabled = !v.available; addBtn.textContent = v.available ? 'Add to cart' : 'Sold out'; }
+        if (v.featured_media && v.featured_media.preview_image) {
+          var src = v.featured_media.preview_image.src;
+          src += (src.indexOf('?') > -1 ? '&' : '?') + 'width=1600';
+          showImage(src, v.featured_media.id);
+        }
+        var url = new URL(window.location.href);
+        url.searchParams.set('variant', v.id);
+        window.history.replaceState({}, '', url.toString());
+      });
+    });
+
+    var back = root.querySelector('[data-egpf-back]');
+    if (back && document.referrer && document.referrer.indexOf(window.location.host) > -1) {
+      back.addEventListener('click', function (e) { e.preventDefault(); history.back(); });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "EG Product Frame",
+  "settings": [
+    { "type": "paragraph", "content": "Hermès-style frame. 2 images: buy box takes the right third. 3+ images: buy box floats over the third image." },
+    { "type": "select", "id": "images_shown", "label": "Images shown in the frame", "options": [ { "value": "2", "label": "2 (buy box on the right third)" }, { "value": "3", "label": "3 (buy box over the third image)" } ], "default": "3" },
+    { "type": "range", "id": "frame_height", "label": "Frame height (% of screen)", "min": 60, "max": 95, "step": 1, "unit": "%", "default": 82 },
+    { "type": "color", "id": "frame_bg", "label": "Frame background", "default": "#F8F6F6" },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show Apple Pay / Buy now buttons", "default": true },
+    { "type": "checkbox", "id": "show_description", "label": "Show description", "default": true }
+  ]
+}
+{% endschema %}

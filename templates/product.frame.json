@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "frame": {
+      "type": "eg-product-frame",
+      "settings": {
+        "images_shown": "3",
+        "frame_height": 82,
+        "frame_bg": "#F8F6F6",
+        "show_vendor": false,
+        "show_dynamic_checkout": true,
+        "show_description": true
+      }
+    }
+  },
+  "order": ["frame"]
+}

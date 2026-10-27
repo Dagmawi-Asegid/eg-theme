@@ -1,0 +1,149 @@
+<div class="eg-slip">
+  <header class="eg-head">
+    <img class="eg-logo" src="https://eugenia-grace-2.myshopify.com/cdn/shop/files/eugenia_grace_final_tissue_paper_logo.png?width=600" alt="Eugenia Grace">
+    <p class="eg-tagline">The Luxury of Handmade</p>
+  </header>
+
+  <div class="eg-meta">
+    <div>
+      <p class="eg-label">Order</p>
+      <p>{{ order.name }}</p>
+    </div>
+    <div>
+      <p class="eg-label">Date</p>
+      <p>{{ order.created_at | date: format: "date" }}</p>
+    </div>
+    {% if order.po_number != blank %}
+      <div>
+        <p class="eg-label">PO number</p>
+        <p>{{ order.po_number }}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="eg-addresses">
+    {% unless delivery_method.type == "pick-up" %}
+      <div>
+        <p class="eg-label">{% if delivery_method.instructions != blank %}Delivery to{% else %}Ship to{% endif %}</p>
+        <p class="eg-address">
+          {% if shipping_address != blank %}
+            {{ shipping_address.name }}
+            {% if shipping_address.company != blank %}<br>{{ shipping_address.company }}{% endif %}
+            <br>{{ shipping_address.address1 }}
+            {% if shipping_address.address2 != blank %}<br>{{ shipping_address.address2 }}{% endif %}
+            {% if shipping_address.city_province_zip != blank %}<br>{{ shipping_address.city_province_zip }}{% endif %}
+            <br>{{ shipping_address.country }}
+            {% if shipping_address.phone != blank %}<br>{{ shipping_address.phone }}{% endif %}
+          {% else %}
+            No shipping address
+          {% endif %}
+        </p>
+      </div>
+    {% endunless %}
+    <div>
+      <p class="eg-label">Bill to</p>
+      <p class="eg-address">
+        {% if billing_address != blank %}
+          {{ billing_address.name }}
+          {% if billing_address.company != blank %}<br>{{ billing_address.company }}{% endif %}
+          <br>{{ billing_address.address1 }}
+          {% if billing_address.address2 != blank %}<br>{{ billing_address.address2 }}{% endif %}
+          {% if billing_address.city_province_zip != blank %}<br>{{ billing_address.city_province_zip }}{% endif %}
+          <br>{{ billing_address.country }}
+        {% else %}
+          No billing address
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  {% assign desired_image_size = 64 %}
+  {% assign resolution_adjusted_size = desired_image_size | times: 300 | divided_by: 72 | ceil %}
+  {% capture effective_image_dimensions %}{{ resolution_adjusted_size }}x{{ resolution_adjusted_size }}{% endcapture %}
+
+  <div class="eg-items">
+    <div class="eg-items-head">
+      <p class="eg-label">Pieces</p>
+      <p class="eg-label">Quantity</p>
+    </div>
+    {% for line_item in line_items_in_shipment %}
+      <div class="eg-item">
+        <div class="eg-item-img">
+          {% if line_item.image != blank %}
+            {{ line_item.image | img_url: effective_image_dimensions | img_tag: '', 'eg-img' }}
+          {% endif %}
+        </div>
+        <div class="eg-item-text">
+          <p class="eg-item-title">{{ line_item.title }}</p>
+          {% if line_item.variant_title != blank %}<p class="eg-small">{{ line_item.variant_title }}</p>{% endif %}
+          {% if line_item.sku != blank %}<p class="eg-small">{{ line_item.sku }}</p>{% endif %}
+          {% for group in line_item.groups %}
+            <p class="eg-small">{% if group.deliverable? %}For: {% else %}Part of: {% endif %}{{ group.title }}</p>
+          {% endfor %}
+        </div>
+        <p class="eg-item-qty">{{ line_item.shipping_quantity }} of {{ line_item.quantity }}</p>
+      </div>
+    {% endfor %}
+    {% unless includes_all_line_items_in_order %}
+      {% unless delivery_method.type == "pick-up" %}
+        <p class="eg-small eg-missing">Other pieces from your order will arrive in a separate shipment.</p>
+      {% endunless %}
+    {% endunless %}
+  </div>
+
+  {% if order.note != blank %}
+    <div class="eg-note">
+      <p class="eg-label">Notes</p>
+      <p>{{ order.note }}</p>
+    </div>
+  {% endif %}
+  {% if delivery_method.instructions != blank %}
+    <div class="eg-note">
+      <p class="eg-label">Delivery instructions</p>
+      <p>{{ delivery_method.instructions }}</p>
+    </div>
+  {% endif %}
+
+  <footer class="eg-foot">
+    <p class="eg-thanks">Made by hand, kept for a lifetime.</p>
+    <p class="eg-small">Thank you for choosing a piece made by an independent artisan.</p>
+  </footer>
+</div>
+
+<style type="text/css">
+  body { font-size: 13px; }
+  * { box-sizing: border-box; }
+  .eg-slip {
+    margin: 0 auto; padding: 8px 4px;
+    color: #1a1a1a;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .eg-slip p { margin: 0; }
+  .eg-head { text-align: center; padding-bottom: 22px; border-bottom: 1px solid #1a1a1a; }
+  .eg-logo { display: block; height: 58px; width: auto; margin: 0 auto 6px; }
+  .eg-mark {
+    font-family: "Cormorant Garamond", "Didot", "Bodoni 72", Georgia, serif;
+    font-size: 30px; letter-spacing: 0.32em; text-transform: uppercase; font-weight: 400;
+  }
+  .eg-tagline { margin-top: 4px !important; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #6b6b6b; }
+  .eg-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 4px !important; }
+  .eg-meta { display: flex; gap: 48px; padding: 18px 0; border-bottom: 1px solid #e4e1dc; }
+  .eg-addresses { display: flex; gap: 48px; padding: 18px 0 22px; }
+  .eg-addresses > div { flex: 1; }
+  .eg-address { font-size: 12px; }
+  .eg-items { border-top: 1px solid #1a1a1a; }
+  .eg-items-head { display: flex; justify-content: space-between; padding: 12px 0 6px; }
+  .eg-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid #e4e1dc; page-break-inside: avoid; }
+  .eg-item-img { flex: 0 0 64px; width: 64px; height: 64px; background: #f8f6f6; }
+  .eg-img { width: 64px; height: 64px; object-fit: cover; display: block; }
+  .eg-item-text { flex: 1; }
+  .eg-item-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 16px; }
+  .eg-small { font-size: 11px; color: #6b6b6b; }
+  .eg-item-qty { flex: 0 0 auto; font-size: 12px; text-align: right; }
+  .eg-missing { padding-top: 10px !important; font-style: italic; }
+  .eg-note { padding: 16px 0 0; }
+  .eg-foot { margin-top: 36px; padding-top: 22px; border-top: 1px solid #1a1a1a; text-align: center; }
+  .eg-thanks { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 18px; margin-bottom: 6px !important; }
+  .eg-contact { margin-top: 10px !important; letter-spacing: 0.05em; }
+</style>

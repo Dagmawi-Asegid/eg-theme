@@ -77,7 +77,8 @@
         "hover_zoom": true,
         "pad_top": 8,
         "pad_bottom": 8
-      }
+      },
+      "disabled": true
     },
     "eg_collection_tiles_aALEjc": {
       "type": "eg-collection-tiles",
@@ -151,7 +152,8 @@
       "name": "EG Media Duo",
       "settings": {
         "ratio": "4 / 5"
-      }
+      },
+      "disabled": true
     },
     "eg_the_edit_LUVHeW": {
       "type": "eg-the-edit",
@@ -253,7 +255,8 @@
         "bg": "#ffffff",
         "pad_top": 8,
         "pad_bottom": 10
-      }
+      },
+      "disabled": true
     },
     "eg_editorial_pair_RYF64g": {
       "type": "closing-statemnet",
@@ -286,17 +289,155 @@
         "pad_top": 9,
         "pad_bottom": 9
       }
+    },
+    "eg_manifesto_simon": {
+      "type": "egmanifesto",
+      "name": "EG Manifesto",
+      "settings": {
+        "text": "<p><strong>Eugenia Grace</strong> is redefining luxury through curated handmade. We represent the extraordinary made by hand.</p>",
+        "pad_top": 7,
+        "pad_bottom": 7
+      }
+    },
+    "eg_discover_simon": {
+      "type": "egdiscover",
+      "name": "EG Discover",
+      "settings": {
+        "heading": "Discover",
+        "fit": "cover",
+        "pad_top": 0,
+        "pad_bottom": 8
+      },
+      "blocks": {
+        "category_0": {
+          "type": "category",
+          "settings": {
+            "label": "Jewellery"
+          }
+        },
+        "category_1": {
+          "type": "category",
+          "settings": {
+            "label": "Bridal"
+          }
+        },
+        "category_2": {
+          "type": "category",
+          "settings": {
+            "label": "Home Decor"
+          }
+        },
+        "category_3": {
+          "type": "category",
+          "settings": {
+            "label": "Accessories"
+          }
+        }
+      },
+      "block_order": [
+        "category_0",
+        "category_1",
+        "category_2",
+        "category_3"
+      ]
+    },
+    "eg_editorial_story_simon": {
+      "type": "eg-editorial-story",
+      "name": "EG Editorial Story",
+      "settings": {
+        "columns": "2",
+        "tile_bg": "#F8F6F6",
+        "max_images": 6,
+        "pad_top": 0,
+        "pad_bottom": 0
+      },
+      "blocks": {
+        "photo_a": {
+          "type": "lifestyle",
+          "settings": {
+            "caption": "Collection | Artisan name"
+          }
+        },
+        "product_a": {
+          "type": "product",
+          "settings": {
+            "product": "cursus-bracelet-in-olive-green",
+            "link_label": "Explore entire collection"
+          }
+        },
+        "product_b": {
+          "type": "product",
+          "settings": {
+            "product": "cursus-bracelet-in-walnut-brown",
+            "link_label": "Explore entire collection"
+          }
+        },
+        "photo_b": {
+          "type": "lifestyle",
+          "settings": {
+            "caption": "Collection | Artisan name"
+          }
+        }
+      },
+      "block_order": [
+        "photo_a",
+        "product_a",
+        "product_b",
+        "photo_b"
+      ]
+    },
+    "eg_atelier_simon": {
+      "type": "eginsidetheatlier",
+      "name": "EG Inside the Atelier",
+      "settings": {
+        "heading": "Inside the Atelier",
+        "collection": "julia-pappas",
+        "name": "Julia Pappas",
+        "role": "",
+        "portrait_label": "Artist Portrait",
+        "link_label": "Discover Julia’s collection",
+        "pad_top": 7,
+        "pad_bottom": 7
+      }
+    },
+    "eg_luxury_simon": {
+      "type": "egluxury",
+      "name": "EG Luxury of Handmade",
+      "settings": {
+        "heading": "The Luxury of Handmade®",
+        "panel_bg": "#0E0E0E",
+        "pad_top": 7,
+        "pad_bottom": 0
+      },
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "title": "Made Slowly, Made Exceptionally.",
+            "text": "Made by hand, kept for a lifetime. Every piece in our collections is made by an independent studio, vetted for material mastery and singular craftsmanship.",
+            "link_label": "Discover our artisans"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1"
+      ]
     }
   },
   "order": [
     "eg_hero_video_Xp3VBx",
+    "eg_manifesto_simon",
+    "eg_discover_simon",
+    "eg_editorial_story_simon",
+    "eg_the_edit_LUVHeW",
+    "eg_atelier_simon",
+    "eg_luxury_simon",
+    "eg_hero_video_PCcz6Y",
+    "eg_editorial_pair_RYF64g",
+    "eg_newsletter_VPx7PN",
     "eg_icons_slider_hAd8BJ",
     "eg_collection_tiles_aALEjc",
     "eg_media_duo_mFV8LJ",
-    "eg_the_edit_LUVHeW",
-    "eg_hero_video_PCcz6Y",
-    "eg_artisan_products_mcp9Fp",
-    "eg_editorial_pair_RYF64g",
-    "eg_newsletter_VPx7PN"
+    "eg_artisan_products_mcp9Fp"
   ]
 }

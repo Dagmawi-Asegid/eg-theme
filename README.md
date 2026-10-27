@@ -38,6 +38,12 @@ Custom EG sections are prefixed `eg-`.
 ### 2026-10-18 — Artisan name links to the artisan page
 - `sections/egartisanproduct.liquid`: the artisan's name on the product page now links to their artisan page (the product's collection that uses the `artisan` template, e.g. `/collections/julia-pappas`; falls back to the collection whose handle matches the artisan entry). Adds a "Discover Julia's collection →" link under the story when no manual link is set in the section settings.
 
+### 2026-10-19 — Homepage in Simon's order (EG Dev only)
+- `templates/index.json`: Brand film → Manifesto → Discover → Editorial Story → The Edit → Inside the Atelier (Julia Pappas) → Luxury of Handmade → full-width video → Quote → Newsletter.
+- Used the existing sections (egmanifesto, egdiscover, eg-editorial-story, eginsidetheatlier, egluxury).
+- Hidden on EG Dev (not deleted): Icons slider, Media duo, Artisan products. One toggle in Customize brings them back.
+- Images still needed from Simon. Live homepage not touched.
+
 ## Next
 - Image rotation animation (Daniel)
 - Images in the filter menu (Quince-style)
