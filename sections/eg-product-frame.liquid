@@ -154,8 +154,9 @@
   #egpf-{{ section.id }} { padding: 1.5rem var(--eg-gutter, clamp(1rem, 3vw, 3rem)) 3rem; --egpf-third: 33.3333%; }
   .egpf__frame {
     position: relative;
-    height: var(--egpf-h, 88vh);
-    min-height: 560px;
+    /* fit under the site header so the buy box and thumbnails are never cut off */
+    height: min(var(--egpf-h, 88vh), calc(100vh - 140px));
+    min-height: 520px;
     background: var(--egpf-bg, #F8F6F6);
     overflow: hidden;
   }
@@ -164,7 +165,7 @@
   .egpf__back {
     position: absolute; top: 1.25rem; left: 1.25rem; z-index: 6;
     display: inline-flex; align-items: center; gap: .35rem;
-    padding: .45rem .9rem; border: 0; border-radius: 999px;
+    padding: .45rem .9rem; border: 1px solid rgba(26,26,26,.12); border-radius: 999px;
     background: rgba(255,255,255,.92);
     font: inherit; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
     color: #1a1a1a; text-decoration: none; cursor: pointer;
