@@ -1,22 +1,26 @@
 {%- comment -%}
-  EG Product Frame — sections/eg-product-frame.liquid
-  Hermès-style product page: everything sits inside one wide frame.
-  - "← Back" top-left, thumbnails inside the frame bottom-left.
-  - 2 images: images take the left two-thirds, the buy box the right third.
-  - 3+ images: images run edge to edge, the buy box floats over the third one.
-  Only used by templates/product.frame.json, so other products are untouched.
+  EG Product Frame (v2) — sections/eg-product-frame.liquid
+  Hermès-style product page, everything inside one frame.
+  - The frame is split into thirds. Photos sit in the left two thirds.
+  - 2 photos: one in each open frame, buy box takes the right third.
+  - 3+ photos: the photos run in a strip and the buy box floats over the third.
+    Arrows, thumbnails and colour swatches shift the strip one frame at a time,
+    so a photo moves from the right frame into the left frame and the last
+    two photos end up side by side.
+  - Click a photo to open the zoom view: "← Back", a vertical slider of all
+    photos, and a thumbnail strip at the bottom.
+  Only used by templates/product.frame.json.
 {%- endcomment -%}
 
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign media_count = product.media.size
-  assign show_count = section.settings.images_shown | plus: 0
-  if media_count < show_count
-    assign show_count = media_count
+  assign layout = 'many'
+  if media_count < 3
+    assign layout = 'two'
   endif
-  assign layout = 'two'
-  if show_count >= 3
-    assign layout = 'three'
+  if media_count < 2
+    assign layout = 'one'
   endif
   assign back_url = routes.all_products_collection_url
   if product.collections.size > 0
@@ -24,29 +28,45 @@
   endif
 -%}
 
-<section class="egpf egpf--{{ layout }}" id="egpf-{{ section.id }}" data-egpf
+<section class="egpf egpf--{{ layout }}" id="egpf-{{ section.id }}" data-count="{{ media_count }}"
   style="--egpf-h: {{ section.settings.frame_height }}vh; --egpf-bg: {{ section.settings.frame_bg }};">
   <div class="egpf__frame">
-    <a class="egpf__back" href="{{ back_url }}" data-egpf-back>&larr; Back</a>
+    <a class="egpf__back" href="{{ back_url }}" data-egpf-back>&larr;&nbsp;Back</a>
 
     <div class="egpf__stage" data-egpf-stage>
-      {%- for media in product.media limit: show_count -%}
-        <div class="egpf__slot" data-egpf-slot="{{ forloop.index0 }}" data-media-id="{{ media.id }}">
-          {{ media | image_url: width: 1600 | image_tag:
-             loading: 'eager', sizes: '(min-width: 990px) 33vw, 100vw',
-             widths: '600, 900, 1200, 1600', class: 'egpf__img', alt: media.alt | default: product.title }}
-        </div>
-      {%- else -%}
-        <div class="egpf__slot">{{ 'product-1' | placeholder_svg_tag: 'egpf__img' }}</div>
-      {%- endfor -%}
+      <div class="egpf__track" data-egpf-track>
+        {%- for media in product.media -%}
+          <button type="button" class="egpf__slot" data-egpf-slot="{{ forloop.index0 }}" data-media-id="{{ media.id }}"
+            aria-label="Zoom image {{ forloop.index }}">
+            {%- liquid
+              assign img_alt = media.alt
+              if img_alt == blank
+                assign img_alt = product.title
+              endif
+              if forloop.index0 < 3
+                assign img_loading = 'eager'
+              else
+                assign img_loading = 'lazy'
+              endif
+            -%}
+            {{ media | image_url: width: 1800 | image_tag: loading: img_loading, sizes: '(min-width: 990px) 34vw, 100vw', widths: '600, 900, 1200, 1800', class: 'egpf__img', alt: img_alt }}
+          </button>
+        {%- else -%}
+          <div class="egpf__slot">{{ 'product-1' | placeholder_svg_tag: 'egpf__img' }}</div>
+        {%- endfor -%}
+      </div>
     </div>
 
+    {%- if media_count > 2 -%}
+      <button type="button" class="egpf__arrow egpf__arrow--prev" data-egpf-prev aria-label="Previous image">&larr;</button>
+      <button type="button" class="egpf__arrow egpf__arrow--next" data-egpf-next aria-label="Next image">&rarr;</button>
+    {%- endif -%}
+
     {%- if media_count > 1 -%}
-      <div class="egpf__thumbs" role="list">
+      <div class="egpf__thumbs">
         {%- for media in product.media -%}
-          <button type="button" class="egpf__thumb{% if forloop.first %} is-active{% endif %}" role="listitem"
-            data-egpf-thumb data-src="{{ media | image_url: width: 1600 }}" data-media-id="{{ media.id }}"
-            aria-label="Show image {{ forloop.index }}">
+          <button type="button" class="egpf__thumb{% if forloop.first %} is-active{% endif %}"
+            data-egpf-thumb="{{ forloop.index0 }}" aria-label="Show image {{ forloop.index }}">
             {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
           </button>
         {%- endfor -%}
@@ -60,7 +80,7 @@
       <h1 class="egpf__title">{{ product.title }}</h1>
       <p class="egpf__price" data-egpf-price>{{ current_variant.price | money }}</p>
 
-      {%- form 'product', product, class: 'egpf__form', data-egpf-form: '' -%}
+      {%- form 'product', product, class: 'egpf__form' -%}
         <input type="hidden" name="id" value="{{ current_variant.id }}" data-egpf-id>
 
         {%- unless product.has_only_default_variant -%}
@@ -103,97 +123,158 @@
     </div>
   </div>
 
+  {%- if media_count > 0 -%}
+    <div class="egpf__zoom" data-egpf-zoom hidden role="dialog" aria-modal="true" aria-label="{{ product.title | escape }} images">
+      <button type="button" class="egpf__back egpf__back--zoom" data-egpf-zoom-close>&larr;&nbsp;Back</button>
+      <div class="egpf__zoom-list" data-egpf-zoom-list>
+        {%- for media in product.media -%}
+          <div class="egpf__zoom-item" data-egpf-zoom-item="{{ forloop.index0 }}">
+            {{ media | image_url: width: 2400 | image_tag: loading: 'lazy', sizes: '100vw', widths: '1200, 1800, 2400', alt: media.alt }}
+          </div>
+        {%- endfor -%}
+      </div>
+      {%- if media_count > 1 -%}
+        <div class="egpf__zoom-thumbs">
+          {%- for media in product.media -%}
+            <button type="button" class="egpf__thumb{% if forloop.first %} is-active{% endif %}" data-egpf-zoom-thumb="{{ forloop.index0 }}" aria-label="Show image {{ forloop.index }}">
+              {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
   <script type="application/json" data-egpf-variants>
     {{ product.variants | json }}
   </script>
 </section>
 
 {%- style -%}
-  #egpf-{{ section.id }} { padding: 1.5rem var(--eg-gutter, clamp(1rem, 3vw, 3rem)) 3rem; }
+  #egpf-{{ section.id }} { padding: 1.5rem var(--eg-gutter, clamp(1rem, 3vw, 3rem)) 3rem; --egpf-third: 33.3333%; }
   .egpf__frame {
     position: relative;
-    height: var(--egpf-h, 82vh);
-    min-height: 520px;
+    height: var(--egpf-h, 88vh);
+    min-height: 560px;
     background: var(--egpf-bg, #F8F6F6);
     overflow: hidden;
   }
+
+  /* Back: small pill, top left (Hermès style) */
   .egpf__back {
-    position: absolute; top: 1.25rem; left: 1.5rem; z-index: 4;
-    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: #1a1a1a; text-decoration: none;
+    position: absolute; top: 1.25rem; left: 1.25rem; z-index: 6;
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .45rem .9rem; border: 0; border-radius: 999px;
+    background: rgba(255,255,255,.92);
+    font: inherit; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+    color: #1a1a1a; text-decoration: none; cursor: pointer;
   }
-  .egpf__back:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .egpf__back:hover { background: #fff; }
 
-  .egpf__stage { position: absolute; inset: 0; display: grid; }
-  .egpf__slot { position: relative; overflow: hidden; }
-  .egpf__img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .35s ease; }
+  /* Stage: photos live in the left two thirds by default */
+  .egpf__stage { position: absolute; top: 0; bottom: 0; left: 0; right: var(--egpf-third); overflow: hidden; }
+  .egpf--many .egpf__stage { right: 0; }
+  .egpf__track { display: flex; height: 100%; transition: transform .6s cubic-bezier(.22,.61,.36,1); will-change: transform; }
+  .egpf__slot { flex: 0 0 50%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; overflow: hidden; }
+  .egpf--one .egpf__slot { flex-basis: 100%; }
+  .egpf--many .egpf__slot { flex-basis: var(--egpf-third); }
+  .egpf__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* 2 images: images in the left two-thirds, buy box in the right third */
-  .egpf--two .egpf__stage { grid-template-columns: 1fr 1fr; right: 33.333%; }
-  /* 3+ images: three equal columns across the full frame; buy box floats over the third */
-  .egpf--three .egpf__stage { grid-template-columns: repeat(3, 1fr); }
-  .egpf--three .egpf__slot:nth-child(n+4) { display: none; }
+  .egpf__arrow {
+    position: absolute; top: 50%; z-index: 5; transform: translateY(-50%);
+    width: 2.75rem; height: 2.75rem; border: 0; border-radius: 50%;
+    background: rgba(255,255,255,.9); color: #1a1a1a; font-size: 1rem; cursor: pointer;
+    opacity: 0; transition: opacity .25s ease;
+  }
+  .egpf__frame:hover .egpf__arrow { opacity: 1; }
+  .egpf__arrow[disabled] { opacity: 0 !important; pointer-events: none; }
+  .egpf__arrow--prev { left: 1.25rem; }
+  .egpf__arrow--next { left: calc(66.6667% - 4rem); }
 
   .egpf__thumbs {
-    position: absolute; left: 1.5rem; bottom: 1.25rem; z-index: 4;
-    display: flex; gap: 0.5rem; max-width: 60%; overflow-x: auto;
+    position: absolute; left: 1.25rem; bottom: 1.25rem; z-index: 5;
+    display: flex; gap: .4rem; max-width: calc(66.6667% - 2.5rem); overflow-x: auto; scrollbar-width: none;
   }
+  .egpf__thumbs::-webkit-scrollbar { display: none; }
   .egpf__thumb {
-    flex: 0 0 56px; width: 56px; height: 56px; padding: 0; border: 1px solid transparent;
-    background: #fff; cursor: pointer; opacity: 0.7;
+    flex: 0 0 48px; width: 48px; height: 48px; padding: 0; border: 1px solid transparent;
+    background: #fff; cursor: pointer; opacity: .65;
   }
   .egpf__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .egpf__thumb.is-active, .egpf__thumb:hover { border-color: #1a1a1a; opacity: 1; }
 
+  /* Buy box: right third. With 3+ photos it floats as a card over the third frame */
   .egpf__buy {
-    position: absolute; top: 0; right: 0; bottom: 0; width: 33.333%; z-index: 3;
+    position: absolute; top: 0; right: 0; bottom: 0; width: var(--egpf-third); z-index: 4;
     display: flex; flex-direction: column; justify-content: center;
     padding: 2.5rem clamp(1.5rem, 3vw, 3rem);
     background: var(--egpf-bg, #F8F6F6);
     overflow-y: auto;
   }
-  .egpf--three .egpf__buy {
-    top: 50%; bottom: auto; right: 2rem; width: calc(33.333% - 4rem);
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.94);
-    backdrop-filter: blur(6px);
-    max-height: calc(100% - 4rem);
+  .egpf--many .egpf__buy {
+    top: auto; bottom: 1.5rem; right: 1.5rem; width: calc(var(--egpf-third) - 3rem);
+    max-height: calc(100% - 3rem);
+    padding: 1.75rem 1.75rem 1.5rem;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 10px 40px rgba(0,0,0,.06);
   }
   .egpf__vendor { margin: 0 0 .5rem; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; opacity: .55; }
-  .egpf__title { margin: 0 0 .5rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-weight: 400; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; }
-  .egpf__price { margin: 0 0 1.5rem; font-size: .95rem; }
-  .egpf__option { border: 0; padding: 0; margin: 0 0 1.25rem; }
-  .egpf__label { font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; margin-bottom: .6rem; }
+  .egpf__title { margin: 0 0 .4rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-weight: 400; font-size: clamp(1.3rem, 1.8vw, 1.9rem); line-height: 1.15; }
+  .egpf__price { margin: 0 0 1.25rem; font-size: .95rem; }
+  .egpf__option { border: 0; padding: 0; margin: 0 0 1.1rem; }
+  .egpf__label { font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; margin-bottom: .55rem; }
   .egpf__label span { opacity: .6; margin-left: .4rem; text-transform: none; letter-spacing: 0; }
-  .egpf__pills { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .egpf__pills { display: flex; flex-wrap: wrap; gap: .45rem; }
   .egpf__pill {
     padding: .5rem .9rem; border: 1px solid rgba(26,26,26,.3); background: transparent;
-    font-size: .8rem; cursor: pointer; border-radius: 0;
+    font: inherit; font-size: .8rem; cursor: pointer; border-radius: 0;
   }
   .egpf__pill.is-active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
-  .egpf__pill--swatch { width: 64px; height: 64px; padding: 3px; background: #fff; border-color: transparent; }
+  .egpf__pill--swatch { width: 56px; height: 56px; padding: 3px; background: #fff; border-color: transparent; }
   .egpf__pill--swatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .egpf__pill--swatch.is-active { background: #fff; border-color: #1a1a1a; }
   .egpf__add {
-    width: 100%; padding: 1rem; margin-top: .5rem; border: 0; background: #1a1a1a; color: #fff;
-    font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; cursor: pointer;
+    width: 100%; padding: .95rem; margin-top: .4rem; border: 0; background: #1a1a1a; color: #fff;
+    font: inherit; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; cursor: pointer;
   }
   .egpf__add[disabled] { opacity: .45; cursor: not-allowed; }
-  .egpf__pay { margin-top: .6rem; }
-  .egpf__details { margin-top: 1.5rem; border-top: 1px solid rgba(26,26,26,.15); padding-top: 1rem; font-size: .85rem; }
-  .egpf__details summary { cursor: pointer; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; }
+  .egpf__pay { margin-top: .5rem; }
+  .egpf__details { margin-top: 1.1rem; border-top: 1px solid rgba(26,26,26,.15); padding-top: .9rem; font-size: .85rem; }
+  .egpf__details summary { cursor: pointer; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; }
   .egpf__desc { margin-top: .75rem; line-height: 1.6; }
 
+  /* Zoom view: vertical slider + thumbnail strip */
+  .egpf__zoom { position: fixed; inset: 0; z-index: 1000; background: var(--egpf-bg, #F8F6F6); }
+  .egpf__zoom[hidden] { display: none; }
+  .egpf__back--zoom { position: fixed; }
+  .egpf__zoom-list { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+  .egpf__zoom-list::-webkit-scrollbar { display: none; }
+  .egpf__zoom-item { height: 100vh; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; }
+  .egpf__zoom-item img { max-width: 100%; max-height: 100%; width: auto; height: 100%; object-fit: contain; display: block; }
+  .egpf__zoom-thumbs {
+    position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 2;
+    display: flex; gap: .4rem; padding: .4rem; background: rgba(255,255,255,.9); max-width: calc(100% - 2.5rem); overflow-x: auto;
+  }
+  html.egpf-zoom-open, html.egpf-zoom-open body { overflow: hidden; }
+
+  /* Phone: one photo at a time, swipe sideways, buy box underneath */
   @media screen and (max-width: 989px) {
+    #egpf-{{ section.id }} { padding: 0 0 2rem; }
     .egpf__frame { height: auto; min-height: 0; }
-    .egpf__stage { position: relative; inset: auto; right: auto !important; grid-template-columns: 1fr !important; aspect-ratio: 4 / 5; }
-    .egpf__slot:not(:first-child) { display: none; }
-    .egpf__thumbs { position: relative; left: auto; bottom: auto; max-width: none; padding: .75rem 1rem; }
-    .egpf__buy, .egpf--three .egpf__buy {
-      position: relative; inset: auto; width: auto; transform: none; max-height: none;
-      background: var(--egpf-bg, #F8F6F6); backdrop-filter: none;
+    .egpf__stage, .egpf--many .egpf__stage {
+      position: relative; inset: auto; right: auto; aspect-ratio: 4 / 5;
+      overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
     }
-    .egpf__back { top: .75rem; left: 1rem; background: rgba(255,255,255,.85); padding: .35rem .6rem; }
+    .egpf__stage::-webkit-scrollbar { display: none; }
+    .egpf__track { transform: none !important; }
+    .egpf__slot, .egpf--one .egpf__slot, .egpf--many .egpf__slot { flex-basis: 100%; scroll-snap-align: start; }
+    .egpf__arrow { display: none; }
+    .egpf__thumbs { position: relative; left: auto; bottom: auto; max-width: none; padding: .75rem 1rem 0; }
+    .egpf__buy, .egpf--many .egpf__buy {
+      position: relative; inset: auto; width: auto; max-height: none; box-shadow: none;
+      padding: 1.5rem 1rem; background: var(--egpf-bg, #F8F6F6);
+    }
+    .egpf__back { top: .75rem; left: .75rem; }
   }
 {%- endstyle -%}
 
@@ -203,31 +284,71 @@
     if (!root) return;
     var variants = [];
     try { variants = JSON.parse(root.querySelector('[data-egpf-variants]').textContent); } catch (e) {}
+    var count = Number(root.dataset.count) || 0;
+    var many = root.classList.contains('egpf--many');
+    var stage = root.querySelector('[data-egpf-stage]');
+    var track = root.querySelector('[data-egpf-track]');
+    var slots = root.querySelectorAll('[data-egpf-slot]');
+    var thumbs = root.querySelectorAll('[data-egpf-thumb]');
+    var prevBtn = root.querySelector('[data-egpf-prev]');
+    var nextBtn = root.querySelector('[data-egpf-next]');
     var idInput = root.querySelector('[data-egpf-id]');
     var priceEl = root.querySelector('[data-egpf-price]');
     var addBtn = root.querySelector('[data-egpf-add]');
-    var firstImg = root.querySelector('[data-egpf-slot="0"] img');
-    var thumbs = root.querySelectorAll('[data-egpf-thumb]');
     var moneyFormat = {{ shop.money_format | json }};
+    var pos = 0;
+    var mq = window.matchMedia('(max-width: 989px)');
 
     function money(cents) {
-      var v = (cents / 100).toFixed(2);
-      return moneyFormat.replace(/\{\{\s*\w+\s*\}\}/, v);
+      return moneyFormat.replace(/\{\{\s*\w+\s*\}\}/, (cents / 100).toFixed(2));
     }
-    function showImage(src, mediaId) {
-      if (!firstImg || !src) return;
-      firstImg.style.opacity = 0;
-      setTimeout(function () {
-        firstImg.removeAttribute('srcset');
-        firstImg.src = src;
-        firstImg.style.opacity = 1;
-      }, 150);
-      thumbs.forEach(function (t) { t.classList.toggle('is-active', String(t.dataset.mediaId) === String(mediaId)); });
+    function maxPos() { return mq.matches ? Math.max(0, count - 1) : (many ? Math.max(0, count - 2) : 0); }
+    function markThumb(i) {
+      thumbs.forEach(function (t) { t.classList.toggle('is-active', Number(t.dataset.egpfThumb) === i); });
+      var active = thumbs[i];
+      if (active && active.parentNode) {
+        var p = active.parentNode;
+        var left = active.offsetLeft - p.clientWidth / 2 + active.clientWidth / 2;
+        p.scrollTo({ left: left, behavior: 'smooth' });
+      }
     }
+    /* Move the strip so image i comes into the open frames.
+       Each step shifts one frame: the photo in the right frame moves to the left frame. */
+    function goTo(i) {
+      if (!count) return;
+      i = Math.max(0, Math.min(i, count - 1));
+      if (mq.matches) {
+        stage.scrollTo({ left: i * stage.clientWidth, behavior: 'smooth' });
+        pos = i;
+      } else if (many) {
+        pos = Math.max(0, Math.min(i, maxPos()));
+        var slotW = slots[0] ? slots[0].getBoundingClientRect().width : 0;
+        if (slotW) track.style.transform = 'translateX(' + (-pos * slotW) + 'px)';
+      }
+      markThumb(i);
+      if (prevBtn) prevBtn.disabled = pos <= 0;
+      if (nextBtn) nextBtn.disabled = pos >= maxPos();
+      current = i;
+    }
+    var current = 0;
     thumbs.forEach(function (t) {
-      t.addEventListener('click', function () { showImage(t.dataset.src, t.dataset.mediaId); });
+      t.addEventListener('click', function () { goTo(Number(t.dataset.egpfThumb)); });
     });
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(pos - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(pos + 1); });
+    window.addEventListener('resize', function () { goTo(current); });
+    if (stage) stage.addEventListener('scroll', function () {
+      if (!mq.matches) return;
+      var i = Math.round(stage.scrollLeft / stage.clientWidth);
+      if (i !== current) { current = i; pos = i; markThumb(i); }
+    }, { passive: true });
 
+    function indexOfMedia(id) {
+      for (var k = 0; k < slots.length; k++) { if (String(slots[k].dataset.mediaId) === String(id)) return k; }
+      return -1;
+    }
+
+    /* Colour / option buttons */
     var chosen = [];
     root.querySelectorAll('.egpf__option').forEach(function (fs, i) {
       var active = fs.querySelector('.egpf__pill.is-active');
@@ -247,10 +368,9 @@
         idInput.value = v.id;
         if (priceEl) priceEl.textContent = money(v.price);
         if (addBtn) { addBtn.disabled = !v.available; addBtn.textContent = v.available ? 'Add to cart' : 'Sold out'; }
-        if (v.featured_media && v.featured_media.preview_image) {
-          var src = v.featured_media.preview_image.src;
-          src += (src.indexOf('?') > -1 ? '&' : '?') + 'width=1600';
-          showImage(src, v.featured_media.id);
+        if (v.featured_media) {
+          var idx = indexOfMedia(v.featured_media.id);
+          if (idx > -1) goTo(idx);
         }
         var url = new URL(window.location.href);
         url.searchParams.set('variant', v.id);
@@ -258,10 +378,57 @@
       });
     });
 
+    /* Zoom view */
+    var zoom = root.querySelector('[data-egpf-zoom]');
+    var zoomList = root.querySelector('[data-egpf-zoom-list]');
+    var zoomItems = root.querySelectorAll('[data-egpf-zoom-item]');
+    var zoomThumbs = root.querySelectorAll('[data-egpf-zoom-thumb]');
+    if (zoom && zoom.parentNode !== document.body) document.body.appendChild(zoom);
+    function markZoomThumb(i) {
+      zoomThumbs.forEach(function (t) { t.classList.toggle('is-active', Number(t.dataset.egpfZoomThumb) === i); });
+    }
+    function openZoom(i) {
+      if (!zoom) return;
+      zoom.hidden = false;
+      document.documentElement.classList.add('egpf-zoom-open');
+      var item = zoomItems[i];
+      if (item) zoomList.scrollTo({ top: item.offsetTop, behavior: 'instant' });
+      markZoomThumb(i);
+    }
+    function closeZoom() {
+      if (!zoom) return;
+      zoom.hidden = true;
+      document.documentElement.classList.remove('egpf-zoom-open');
+    }
+    slots.forEach(function (s) {
+      s.addEventListener('click', function () { openZoom(Number(s.dataset.egpfSlot)); });
+    });
+    zoomThumbs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var item = zoomItems[Number(t.dataset.egpfZoomThumb)];
+        if (item) zoomList.scrollTo({ top: item.offsetTop, behavior: 'smooth' });
+      });
+    });
+    if (zoomList) zoomList.addEventListener('scroll', function () {
+      markZoomThumb(Math.round(zoomList.scrollTop / zoomList.clientHeight));
+    }, { passive: true });
+    if (zoom) zoom.querySelector('[data-egpf-zoom-close]').addEventListener('click', closeZoom);
+    document.addEventListener('keydown', function (e) {
+      if (!zoom || zoom.hidden) return;
+      if (e.key === 'Escape') closeZoom();
+    });
+
+    /* Back: go back if the shopper came from this store, otherwise to the collection */
     var back = root.querySelector('[data-egpf-back]');
     if (back && document.referrer && document.referrer.indexOf(window.location.host) > -1) {
       back.addEventListener('click', function (e) { e.preventDefault(); history.back(); });
     }
+
+    /* Start on the selected colour's photo */
+    var start = 0;
+    var sel = variants.find(function (x) { return String(x.id) === String(idInput && idInput.value); });
+    if (sel && sel.featured_media) { var si = indexOfMedia(sel.featured_media.id); if (si > -1) start = si; }
+    goTo(start);
   })();
 </script>
 
@@ -269,9 +436,8 @@
 {
   "name": "EG Product Frame",
   "settings": [
-    { "type": "paragraph", "content": "Hermès-style frame. 2 images: buy box takes the right third. 3+ images: buy box floats over the third image." },
-    { "type": "select", "id": "images_shown", "label": "Images shown in the frame", "options": [ { "value": "2", "label": "2 (buy box on the right third)" }, { "value": "3", "label": "3 (buy box over the third image)" } ], "default": "3" },
-    { "type": "range", "id": "frame_height", "label": "Frame height (% of screen)", "min": 60, "max": 95, "step": 1, "unit": "%", "default": 82 },
+    { "type": "paragraph", "content": "Hermès-style frame. 2 photos: buy box takes the right third. 3+ photos: buy box floats over the third frame and the photos shift one frame at a time. Click a photo to zoom." },
+    { "type": "range", "id": "frame_height", "label": "Frame height (% of screen)", "min": 60, "max": 100, "step": 2, "unit": "%", "default": 88 },
     { "type": "color", "id": "frame_bg", "label": "Frame background", "default": "#F8F6F6" },
     { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
     { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show Apple Pay / Buy now buttons", "default": true },
