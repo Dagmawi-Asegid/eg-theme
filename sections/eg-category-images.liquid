@@ -1,0 +1,141 @@
+{%- comment -%}
+  EG Category Images — sections/eg-category-images.liquid
+  A row of image tiles for the product lines of the current category, so shoppers
+  pick "Bracelets", "Rings"... by picture instead of plain text boxes.
+  It reads the menu you choose (normally Main menu):
+  - On a category page (e.g. Jewelry) it shows that category's sub-lines.
+  - On a sub-line page (e.g. Jewelry - Bracelets) it shows its sister lines,
+    with the current one underlined.
+  Each tile uses that collection's image (Collections > image), or its first product photo.
+  Add it to the collection template above the product grid.
+{%- endcomment -%}
+
+{%- liquid
+  assign menu = section.settings.menu
+  assign tiles = blank
+  assign current_handle = collection.handle
+  if menu != blank and collection != blank
+    for top in menu.links
+      if top.type == 'collection_link' and top.object.handle == current_handle and top.links.size > 0
+        assign tiles = top.links
+        break
+      endif
+      for child in top.links
+        if child.type == 'collection_link' and child.object.handle == current_handle
+          assign tiles = top.links
+          break
+        endif
+        for grand in child.links
+          if grand.type == 'collection_link' and grand.object.handle == current_handle
+            assign tiles = child.links
+            break
+          endif
+        endfor
+        if tiles != blank
+          break
+        endif
+      endfor
+      if tiles != blank
+        break
+      endif
+      if top.links.size > 0
+        for child in top.links
+          if child.type == 'collection_link' and child.object.handle == current_handle and child.links.size > 0
+            assign tiles = child.links
+            break
+          endif
+        endfor
+      endif
+      if tiles != blank
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{%- if tiles != blank and tiles.size > 0 -%}
+  <nav class="egcat" id="egcat-{{ section.id }}" aria-label="{{ section.settings.label | escape }}"
+    style="--egcat-size: {{ section.settings.tile_size }}px;">
+    {%- if section.settings.label != blank -%}
+      <p class="egcat__label">{{ section.settings.label }}</p>
+    {%- endif -%}
+    <ul class="egcat__row" role="list">
+      {%- for link in tiles -%}
+        {%- liquid
+          assign img = blank
+          if link.type == 'collection_link'
+            assign img = link.object.featured_image
+            if img == blank and link.object.products.size > 0
+              assign img = link.object.products.first.featured_media.preview_image
+            endif
+          elsif link.type == 'product_link'
+            assign img = link.object.featured_media.preview_image
+          endif
+          assign is_current = false
+          if link.type == 'collection_link' and link.object.handle == current_handle
+            assign is_current = true
+          endif
+        -%}
+        <li class="egcat__item">
+          <a class="egcat__tile{% if is_current %} is-current{% endif %}" href="{{ link.url }}"{% if is_current %} aria-current="page"{% endif %}>
+            <span class="egcat__img">
+              {%- if img != blank -%}
+                {{ img | image_url: width: 480 | image_tag: loading: 'lazy', widths: '240, 360, 480', sizes: '160px', alt: '' }}
+              {%- else -%}
+                {{ 'collection-1' | placeholder_svg_tag }}
+              {%- endif -%}
+            </span>
+            <span class="egcat__name">{{ link.title }}</span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+{%- endif -%}
+
+{%- style -%}
+  #egcat-{{ section.id }} {
+    padding: {{ section.settings.pad_top }}rem var(--eg-gutter, clamp(1rem, 5vw, 5rem)) {{ section.settings.pad_bottom }}rem;
+  }
+  .egcat__label {
+    margin: 0 0 1.25rem; text-align: center;
+    font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; opacity: .6;
+  }
+  .egcat__row {
+    display: flex; justify-content: center; gap: clamp(1rem, 2.5vw, 2.25rem);
+    margin: 0; padding: 0 0 .5rem; list-style: none;
+    overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
+  }
+  .egcat__row::-webkit-scrollbar { display: none; }
+  .egcat__item { flex: 0 0 var(--egcat-size); scroll-snap-align: start; }
+  .egcat__tile { display: block; text-decoration: none; color: inherit; text-align: center; }
+  .egcat__img { display: block; aspect-ratio: 1 / 1; overflow: hidden; background: #F4F2F2; }
+  .egcat__img img, .egcat__img svg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+  .egcat__tile:hover .egcat__img img { transform: scale(1.04); }
+  .egcat__name {
+    display: inline-block; margin-top: .85rem; padding-bottom: .2rem;
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    border-bottom: 1px solid transparent;
+  }
+  .egcat__tile.is-current .egcat__name, .egcat__tile:hover .egcat__name { border-bottom-color: currentColor; }
+  @media screen and (max-width: 749px) {
+    .egcat__row { justify-content: flex-start; }
+    .egcat__item { flex-basis: calc(var(--egcat-size) * .75); }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "EG Category Images",
+  "settings": [
+    { "type": "paragraph", "content": "Shows a picture for each product line of this category, taken from the menu below. Each picture is the collection's image (or its first product photo)." },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "text", "id": "label", "label": "Small label above", "default": "Shop by" },
+    { "type": "range", "id": "tile_size", "label": "Tile size", "min": 100, "max": 240, "step": 10, "unit": "px", "default": 160 },
+    { "type": "range", "id": "pad_top", "label": "Space above", "min": 0, "max": 6, "step": 0.5, "unit": "rem", "default": 2 },
+    { "type": "range", "id": "pad_bottom", "label": "Space below", "min": 0, "max": 6, "step": 0.5, "unit": "rem", "default": 2 }
+  ],
+  "presets": [ { "name": "EG Category Images" } ],
+  "enabled_on": { "templates": ["collection"] }
+}
+{% endschema %}
