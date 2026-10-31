@@ -126,14 +126,58 @@
     </div>
   </div>
 
-  {%- if section.settings.show_description and product.description != blank -%}
-    <div class="egpf__below">
-      <details class="egpf__details" open>
-        <summary>Description</summary>
-        <div class="egpf__desc">{{ product.description }}</div>
-      </details>
+  <div class="egpf__below">
+    {%- if section.settings.show_description and product.description != blank -%}
+      <div class="egpf__desc">{{ product.description }}</div>
+    {%- endif -%}
+    <div class="egpf__meta">
+      {%- if current_variant.sku != blank -%}
+        <p>Product reference: <span data-egpf-sku>{{ current_variant.sku }}</span></p>
+      {%- endif -%}
+      <p>Like to know more? <a href="{{ section.settings.contact_url | default: '/pages/contact' }}">Contact Customer Service</a></p>
+    </div>
+  </div>
+
+  {%- liquid
+    assign story_text = blank
+    assign story_quote = blank
+    assign ao = product.metafields.custom.artisan.value
+    if ao != blank
+      assign story_text = ao.story.value
+      assign story_quote = ao.quote.value
+    endif
+  -%}
+  {%- if section.settings.show_story and story_text != blank -%}
+    <div class="egpf__story">
+      <h2 class="egpf__story-title">{{ section.settings.story_heading }}</h2>
+      <div class="egpf__story-text">{{ story_text | strip_html | newline_to_br }}</div>
+      {%- if story_quote != blank -%}<p class="egpf__story-quote">&ldquo;{{ story_quote | strip_html }}&rdquo;</p>{%- endif -%}
     </div>
   {%- endif -%}
+
+  {%- if product.collections.size > 0 -%}
+    <nav class="egpf__crumbs" aria-label="Breadcrumb">
+      <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+      <span aria-hidden="true">|</span>
+      <span>{{ product.title }}</span>
+    </nav>
+  {%- endif -%}
+
+  <div class="egpf__sticky" data-egpf-sticky aria-hidden="true">
+    <div class="egpf__sticky-info">
+      {%- if product.featured_media -%}
+        {{ product.featured_media | image_url: width: 120 | image_tag: loading: 'lazy', alt: '', class: 'egpf__sticky-img' }}
+      {%- endif -%}
+      <div>
+        <p class="egpf__sticky-title">{{ product.title }}</p>
+        <p class="egpf__sticky-price" data-egpf-sticky-price>{{ current_variant.price | money }}</p>
+      </div>
+    </div>
+    <button type="button" class="egpf__add egpf__sticky-add" data-egpf-sticky-add tabindex="-1">
+      <svg class="egpf__bag" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 5h10l-.8 9.2H3.8L3 5Zm2.5 0V3.8a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      <span>Add to cart</span>
+    </button>
+  </div>
 
   {%- if media_count > 0 -%}
     <div class="egpf__zoom" data-egpf-zoom hidden role="dialog" aria-modal="true" aria-label="{{ product.title | escape }} images">
@@ -171,10 +215,10 @@
 </section>
 
 {%- style -%}
-  #egpf-{{ section.id }} { padding: 1.5rem var(--eg-gutter, clamp(1rem, 3vw, 3rem)) 3rem; }
+  #egpf-{{ section.id }} { padding: 0 0 0; background: var(--egpf-bg, #F8F5F0); }
   .egpf__frame {
     position: relative;
-    height: min(var(--egpf-h, 88vh), calc(100vh - 140px));
+    height: min(var(--egpf-h, 100vh), calc(100vh - var(--egpf-header, 120px)));
     min-height: 520px;
     background: var(--egpf-bg, #F8F6F6);
     overflow: hidden;
@@ -195,6 +239,8 @@
   .egpf--two .egpf__stage, .egpf--one .egpf__stage { right: 33.3333%; }
   .egpf__track { display: flex; height: 100%; transition: transform .6s cubic-bezier(.22,.61,.36,1); will-change: transform; }
   .egpf__slot { flex: 0 0 50%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; overflow: hidden; }
+  .egpf--many .egpf__slot { flex-basis: 33.3333%; }
+  .egpf__slot + .egpf__slot { border-left: 1px solid var(--egpf-bg, #F8F5F0); }
   .egpf--one .egpf__slot { flex-basis: 100%; }
   .egpf__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -237,19 +283,22 @@
     overflow-y: auto;
   }
   .egpf--many .egpf__buy {
-    top: auto; bottom: 1.5rem; right: 1.5rem; width: clamp(300px, 28%, 420px);
+    top: auto; bottom: 1.5rem; right: 1.5rem; width: clamp(300px, 25vw, 380px);
     max-height: calc(100% - 3rem);
-    padding: 1.5rem 1.5rem 1.25rem;
-    background: rgba(255,255,255,.97);
+    padding: 1.5rem 1.5rem 1.4rem;
+    background: #FCFAF7;
   }
   .egpf__vendor { margin: 0 0 .5rem; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; opacity: .55; }
   .egpf__title { margin: 0 0 1rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-weight: 400; font-size: clamp(1.2rem, 1.6vw, 1.7rem); line-height: 1.2; }
   .egpf__option { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
   .egpf__label {
     display: flex; justify-content: space-between; gap: 1rem; width: 100%; padding: 0;
-    font-size: .74rem; margin-bottom: .6rem;
+    font-size: .74rem; margin-bottom: .7rem;
   }
-  .egpf__label > span:first-child { opacity: .6; }
+  .egpf__label > span:first-child {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: .7rem; letter-spacing: .06em; text-transform: uppercase;
+  }
   .egpf__chosen { text-align: right; }
   .egpf__pills { display: flex; flex-wrap: wrap; gap: .4rem; }
   .egpf__pill {
@@ -257,46 +306,78 @@
     font: inherit; font-size: .8rem; cursor: pointer; border-radius: 0;
   }
   .egpf__pill.is-active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
-  .egpf__pill--swatch { width: 54px; height: 54px; padding: 2px; background: #fff; border-color: rgba(26,26,26,.12); }
+  .egpf__pill--swatch { position: relative; width: 54px; height: 54px; padding: 0; border: 0; background: transparent; margin-bottom: 6px; }
   .egpf__pill--swatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .egpf__pill--swatch.is-active { background: #fff; border-color: #1a1a1a; }
+  .egpf__pill--swatch::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; background: #1a1a1a; transform: scaleX(0); transition: transform .25s ease; }
+  .egpf__pill--swatch.is-active { background: transparent; }
+  .egpf__pill--swatch.is-active::after, .egpf__pill--swatch:hover::after { transform: scaleX(1); }
   .egpf__price { margin: .4rem 0 .8rem; text-align: right; font-size: .9rem; }
   .egpf__actions { display: grid; grid-template-columns: 1fr; gap: .5rem; }
-  .egpf__actions--two { grid-template-columns: 1fr 1fr; }
+  .egpf__actions--two { grid-template-columns: 1fr 2fr; gap: 0; }
+  .egpf__actions--two .egpf__pay .shopify-payment-button__button { border: 1px solid #1a1a1a; }
   .egpf__add {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     width: 100%; min-height: 44px; padding: .8rem; border: 0; background: #1a1a1a; color: #fff;
-    font: inherit; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; cursor: pointer;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
   }
   .egpf__add[disabled] { opacity: .45; cursor: not-allowed; }
   .egpf__pay { min-width: 0; }
   .egpf__pay .shopify-payment-button__button { min-height: 44px; border-radius: 0; }
   .egpf__pay .shopify-payment-button__more-options { display: none; }
 
-  .egpf__below { max-width: 46rem; margin: 2.5rem auto 0; }
-  .egpf__details { border-top: 1px solid rgba(26,26,26,.15); padding-top: 1rem; font-size: .9rem; }
-  .egpf__details summary { cursor: pointer; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; list-style: none; }
-  .egpf__details summary::-webkit-details-marker { display: none; }
-  .egpf__desc { margin-top: .9rem; line-height: 1.65; }
+  .egpf__below {
+    display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem);
+    max-width: 1240px; margin: 0 auto; padding: clamp(3rem, 6vw, 5rem) var(--eg-gutter, clamp(1.25rem, 6vw, 6rem));
+    font-size: .92rem; line-height: 1.65;
+  }
+  .egpf__desc p { margin: 0 0 .8rem; }
+  .egpf__meta p { margin: 0 0 .35rem; color: rgba(26,26,26,.6); }
+  .egpf__meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .egpf__story { max-width: 46rem; margin: 0 auto; padding: clamp(3rem, 6vw, 5rem) 1.5rem; text-align: center; }
+  .egpf__story-title { margin: 0 0 1rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-style: italic; font-weight: 400; font-size: clamp(1.8rem, 2.6vw, 2.4rem); }
+  .egpf__story-text, .egpf__story-quote { font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-style: italic; font-size: clamp(1.1rem, 1.5vw, 1.35rem); line-height: 1.5; }
+  .egpf__story-quote { margin-top: 1.25rem; opacity: .8; }
+  .egpf__crumbs {
+    display: flex; justify-content: center; gap: .6rem; padding: 2rem 1rem 3rem;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(26,26,26,.7);
+  }
+  .egpf__crumbs a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* Sticky bar that appears once the buy box scrolls away (Hermès) */
+  .egpf__sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: .7rem var(--eg-gutter, 1.5rem); background: #FCFAF7; box-shadow: 0 -1px 0 rgba(26,26,26,.08);
+    transform: translateY(110%); transition: transform .35s ease;
+  }
+  .egpf__sticky.is-visible { transform: translateY(0); }
+  .egpf__sticky-info { display: flex; align-items: center; gap: .9rem; min-width: 0; }
+  .egpf__sticky-img { width: 40px; height: 52px; object-fit: cover; display: block; }
+  .egpf__sticky-title { margin: 0; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .egpf__sticky-price { margin: 0; font-size: .8rem; opacity: .75; }
+  .egpf__sticky-add { width: auto; min-width: 210px; }
 
   /* Zoom view */
   .egpf__zoom { position: fixed; inset: 0; z-index: 1000; background: #fff; }
   .egpf__zoom[hidden] { display: none; }
   .egpf__close {
-    position: fixed; top: 1rem; right: 1.25rem; z-index: 3;
-    width: 2.4rem; height: 2.4rem; border: 0; border-radius: 50%;
-    background: rgba(255,255,255,.9); color: #1a1a1a; font-size: 1.5rem; line-height: 1; cursor: pointer;
+    position: fixed; top: 1.25rem; right: 1.5rem; z-index: 3;
+    width: 2rem; height: 2rem; border: 0; background: transparent;
+    color: #1a1a1a; font-size: 1.9rem; font-weight: 200; line-height: 1; cursor: pointer;
   }
   .egpf__zoomctl {
-    position: fixed; left: 1.25rem; top: 50%; transform: translateY(-50%); z-index: 3;
-    display: flex; flex-direction: column; align-items: center; gap: .35rem;
-    padding: .45rem .3rem; background: rgba(255,255,255,.92);
+    position: fixed; left: 1.75rem; top: 50%; transform: translateY(-50%); z-index: 3;
+    display: flex; flex-direction: column; align-items: center; gap: .6rem;
   }
-  .egpf__zoombtn { width: 1.4rem; height: 1.4rem; border: 0; background: transparent; font-size: 1rem; line-height: 1; cursor: pointer; color: #1a1a1a; }
+  .egpf__zoombtn { width: 1.5rem; height: 1.5rem; border: 0; background: transparent; font-size: 1.35rem; font-weight: 200; line-height: 1; cursor: pointer; color: #1a1a1a; }
   .egpf__zoomrange {
-    writing-mode: vertical-lr; direction: rtl; -webkit-appearance: slider-vertical; appearance: slider-vertical;
-    width: 14px; height: 30vh; margin: 0; accent-color: #1a1a1a; cursor: pointer;
+    writing-mode: vertical-lr; direction: rtl; -webkit-appearance: none; appearance: none;
+    width: 9px; height: 31vh; margin: 0; background: transparent; cursor: pointer;
   }
+  .egpf__zoomrange::-webkit-slider-runnable-track { width: 1px; background: #1a1a1a; }
+  .egpf__zoomrange::-moz-range-track { width: 1px; background: #1a1a1a; }
+  .egpf__zoomrange::-webkit-slider-thumb { -webkit-appearance: none; width: 7px; height: 7px; border-radius: 50%; background: #1a1a1a; margin-left: -3px; }
+  .egpf__zoomrange::-moz-range-thumb { width: 7px; height: 7px; border: 0; border-radius: 50%; background: #1a1a1a; }
   .egpf__zoom-list { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
   .egpf__zoom-list::-webkit-scrollbar { display: none; }
   .egpf__zoom-item { height: 100vh; scroll-snap-align: start; overflow: hidden; background: #fff; }
@@ -304,7 +385,7 @@
   .egpf__zoom-item.is-zoomed img { cursor: grab; }
   .egpf__zoom-thumbs {
     position: fixed; left: 1.25rem; bottom: 1.25rem; z-index: 3;
-    display: flex; gap: .35rem; padding: .4rem .45rem 9px; background: rgba(255,255,255,.95);
+    display: flex; gap: .35rem; padding: 0 0 7px; background: transparent;
     max-width: calc(100% - 2.5rem); overflow-x: auto;
   }
   html.egpf-zoom-open, html.egpf-zoom-open body { overflow: hidden; }
@@ -319,7 +400,8 @@
     }
     .egpf__stage::-webkit-scrollbar { display: none; }
     .egpf__track { transform: none !important; }
-    .egpf__slot, .egpf--one .egpf__slot { flex-basis: 100%; scroll-snap-align: start; }
+    .egpf__slot, .egpf--one .egpf__slot, .egpf--many .egpf__slot { flex-basis: 100%; scroll-snap-align: start; }
+    .egpf__slot + .egpf__slot { border-left: 0; }
     .egpf__arrow { display: none; }
     .egpf__thumbs { position: relative; left: auto; bottom: auto; max-width: none; padding: .75rem 1rem 6px; }
     .egpf__buy, .egpf--many .egpf__buy {
@@ -327,7 +409,9 @@
       padding: 1.5rem 1rem; background: var(--egpf-bg, #F8F6F6);
     }
     .egpf__back { top: .75rem; left: .75rem; }
-    .egpf__below { margin: 1.5rem 1rem 0; }
+    .egpf__below { grid-template-columns: 1fr; gap: 1.25rem; padding: 2rem 1rem; }
+    .egpf__sticky-add { min-width: 0; }
+    .egpf__sticky-title { max-width: 45vw; }
     .egpf__zoomctl { left: .5rem; }
     .egpf__zoomrange { height: 22vh; }
   }
@@ -353,6 +437,13 @@
     var addLabel = root.querySelector('[data-egpf-add-label]');
     var moneyFormat = {{ shop.money_format | json }};
     var mq = window.matchMedia('(max-width: 989px)');
+    /* let the frame fill the screen under the site header */
+    function setHeader() {
+      /* everything above the frame (announcement bar + header) */
+      var top = Math.round(root.getBoundingClientRect().top + window.scrollY);
+      if (top > 0 && top < 400) root.style.setProperty('--egpf-header', top + 'px');
+    }
+    setHeader(); window.addEventListener('resize', setHeader);
     var pos = 0;      /* index of the photo in the left frame */
     var current = 0;  /* index of the photo the shopper picked */
 
@@ -421,6 +512,8 @@
         if (!v) return;
         idInput.value = v.id;
         if (priceEl) priceEl.textContent = money(v.price);
+        var sp = document.querySelector('[data-egpf-sticky-price]'); if (sp) sp.textContent = money(v.price);
+        var sk = root.querySelector('[data-egpf-sku]'); if (sk) sk.textContent = v.sku || '';
         if (addBtn) { addBtn.disabled = !v.available; }
         if (addLabel) { addLabel.textContent = v.available ? 'Add to cart' : 'Sold out'; }
         if (v.featured_media) { var idx = indexOfMedia(v.featured_media.id); if (idx > -1) show(idx); }
@@ -504,6 +597,22 @@
       document.addEventListener('keydown', function (e) { if (!zoom.hidden && e.key === 'Escape') closeZoom(); });
     }
 
+    /* Sticky add-to-cart bar once the buy box is off screen */
+    var sticky = root.querySelector('[data-egpf-sticky]');
+    var buy = root.querySelector('.egpf__buy');
+    if (sticky && buy && 'IntersectionObserver' in window) {
+      document.body.appendChild(sticky);
+      new IntersectionObserver(function (entries) {
+        var off = !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0;
+        sticky.classList.toggle('is-visible', off);
+        sticky.setAttribute('aria-hidden', off ? 'false' : 'true');
+        var b = sticky.querySelector('[data-egpf-sticky-add]'); if (b) b.tabIndex = off ? 0 : -1;
+      }).observe(buy);
+      sticky.querySelector('[data-egpf-sticky-add]').addEventListener('click', function () {
+        if (addBtn && !addBtn.disabled) addBtn.click();
+      });
+    }
+
     /* Back: return to the previous page if it was on this store, otherwise the collection */
     var back = root.querySelector('[data-egpf-back]');
     if (back && document.referrer && document.referrer.indexOf(window.location.host) > -1) {
@@ -523,11 +632,14 @@
   "name": "EG Product Frame",
   "settings": [
     { "type": "paragraph", "content": "Hermès-style frame. 3+ photos: two photos side by side, buy box floats over the right photo, clicking a later photo shifts the pair. 2 photos: buy box takes the right third. Click a photo to zoom." },
-    { "type": "range", "id": "frame_height", "label": "Frame height (% of screen)", "min": 60, "max": 100, "step": 2, "unit": "%", "default": 88 },
-    { "type": "color", "id": "frame_bg", "label": "Frame background", "default": "#F8F6F6" },
+    { "type": "range", "id": "frame_height", "label": "Frame height (% of screen)", "min": 60, "max": 100, "step": 2, "unit": "%", "default": 100 },
+    { "type": "color", "id": "frame_bg", "label": "Background", "default": "#F8F5F0" },
     { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
     { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show Apple Pay / Buy now button next to Add to cart", "default": true },
-    { "type": "checkbox", "id": "show_description", "label": "Show description under the frame", "default": true }
+    { "type": "checkbox", "id": "show_description", "label": "Show description under the frame", "default": true },
+    { "type": "url", "id": "contact_url", "label": "Contact Customer Service link" },
+    { "type": "checkbox", "id": "show_story", "label": "Show the artisan's story below (from the product's Artisan)", "default": true },
+    { "type": "text", "id": "story_heading", "label": "Story heading", "default": "The story behind" }
   ]
 }
 {% endschema %}
