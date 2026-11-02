@@ -292,7 +292,16 @@
   .egpf__track { display: flex; height: 100%; transition: transform .6s cubic-bezier(.22,.61,.36,1); will-change: transform; }
   .egpf__slot { flex: 0 0 50%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; overflow: hidden; }
   .egpf--many .egpf__slot { flex-basis: 33.3333%; }
-  .egpf__slot + .egpf__slot { border-left: 1px solid var(--egpf-bg, #F8F5F0); }
+  /* Hermès look: each photo sits in its own soft cream frame, white photo backgrounds
+     melt into it (multiply), and a hairline divides the frames */
+  .egpf__slot { background: #F4EFE8; }
+  .egpf__slot:nth-child(3n+2) { background: #F1EBE3; }
+  .egpf__slot img, .egpf__slot .egpf__img { mix-blend-mode: multiply; }
+  .egpf__slot + .egpf__slot { border-left: 1px solid rgba(26,26,26,.10); }
+  .egpf__frame { border-bottom: 1px solid rgba(26,26,26,.10); }
+  .egpf__thumb { background: #F4EFE8; }
+  .egpf__thumb img { mix-blend-mode: multiply; }
+  .egpf__story, .egpf__crumbs { border-top: 1px solid rgba(26,26,26,.10); }
   .egpf--one .egpf__slot { flex-basis: 100%; }
   .egpf__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
