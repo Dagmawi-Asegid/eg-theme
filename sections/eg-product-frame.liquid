@@ -25,6 +25,29 @@
   if media_count < 2
     assign layout = 'one'
   endif
+  comment
+    Artisan (from the product's Artisan entry) and the link to the artisan's page:
+    the product's collection that uses the "artisan" template, or the collection
+    whose handle matches the artisan entry (e.g. julia-pappas).
+  endcomment
+  assign ao = product.metafields.custom.artisan.value
+  assign a_name = blank
+  assign a_url = blank
+  if ao != blank
+    assign a_name = ao.name.value | default: ao.name
+  endif
+  for c in product.collections
+    if c.template_suffix == 'artisan'
+      assign a_url = c.url
+      break
+    endif
+  endfor
+  if a_url == blank and ao != blank and ao.system.handle != blank
+    assign a_coll = collections[ao.system.handle]
+    if a_coll.id != blank
+      assign a_url = a_coll.url
+    endif
+  endif
   assign back_url = routes.all_products_collection_url
   if product.collections.size > 0
     assign back_url = product.collections.first.url
@@ -81,6 +104,9 @@
         <p class="egpf__vendor">{{ product.vendor }}</p>
       {%- endif -%}
       <h1 class="egpf__title">{{ product.title }}</h1>
+      {%- if a_name != blank -%}
+        <p class="egpf__by">By {% if a_url != blank %}<a href="{{ a_url }}">{{ a_name }}</a>{% else %}{{ a_name }}{% endif %}</p>
+      {%- endif -%}
 
       {%- form 'product', product, class: 'egpf__form' -%}
         <input type="hidden" name="id" value="{{ current_variant.id }}" data-egpf-id>
@@ -141,17 +167,33 @@
   {%- liquid
     assign story_text = blank
     assign story_quote = blank
-    assign ao = product.metafields.custom.artisan.value
     if ao != blank
-      assign story_text = ao.story.value
+      assign story_text = ao.story.value | strip_html | strip
       assign story_quote = ao.quote.value
+    endif
+    comment
+      Keep only the top paragraph (Rose: "we can work with the top paragraph").
+    endcomment
+    if story_text != blank and section.settings.story_first_paragraph
+      assign story_parts = story_text | newline_to_br | split: '<br />'
+      for part in story_parts
+        assign part_clean = part | strip
+        if part_clean != blank
+          assign story_text = part_clean
+          break
+        endif
+      endfor
     endif
   -%}
   {%- if section.settings.show_story and story_text != blank -%}
     <div class="egpf__story">
       <h2 class="egpf__story-title">{{ section.settings.story_heading }}</h2>
-      <div class="egpf__story-text">{{ story_text | strip_html | newline_to_br }}</div>
+      {%- if a_name != blank -%}<p class="egpf__story-name">{{ a_name }}</p>{%- endif -%}
+      <div class="egpf__story-text">{{ story_text }}</div>
       {%- if story_quote != blank -%}<p class="egpf__story-quote">&ldquo;{{ story_quote | strip_html }}&rdquo;</p>{%- endif -%}
+      {%- if a_url != blank -%}
+        <a class="egpf__story-link" href="{{ a_url }}">Discover {{ a_name | default: 'the artisan' }}&rsquo;s collection &rarr;</a>
+      {%- endif -%}
     </div>
   {%- endif -%}
 
@@ -173,10 +215,20 @@
         <p class="egpf__sticky-price" data-egpf-sticky-price>{{ current_variant.price | money }}</p>
       </div>
     </div>
-    <button type="button" class="egpf__add egpf__sticky-add" data-egpf-sticky-add tabindex="-1">
-      <svg class="egpf__bag" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 5h10l-.8 9.2H3.8L3 5Zm2.5 0V3.8a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-      <span>Add to cart</span>
-    </button>
+    {%- assign sticky_form_id = 'egpf-sticky-form-' | append: section.id -%}
+    {%- form 'product', product, class: 'egpf__sticky-form', id: sticky_form_id -%}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-egpf-sticky-id>
+      <div class="egpf__actions{% if section.settings.show_dynamic_checkout %} egpf__actions--two{% endif %}">
+        {%- if section.settings.show_dynamic_checkout -%}
+          <div class="egpf__pay">{{ form | payment_button }}</div>
+        {%- endif -%}
+        <button type="submit" name="add" class="egpf__add egpf__sticky-add" data-egpf-sticky-add
+          {% unless current_variant.available %}disabled{% endunless %}>
+          <svg class="egpf__bag" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 5h10l-.8 9.2H3.8L3 5Zm2.5 0V3.8a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          <span data-egpf-sticky-label>{%- if current_variant.available -%}Add to cart{%- else -%}Sold out{%- endif -%}</span>
+        </button>
+      </div>
+    {%- endform -%}
   </div>
 
   {%- if media_count > 0 -%}
@@ -218,8 +270,8 @@
   #egpf-{{ section.id }} { padding: 0 0 0; background: var(--egpf-bg, #F8F5F0); }
   .egpf__frame {
     position: relative;
-    height: min(var(--egpf-h, 100vh), calc(100vh - var(--egpf-header, 120px)));
-    min-height: 520px;
+    height: min(var(--egpf-h, 100vh), calc(100vh - var(--egpf-header, 120px) - var(--egpf-pbar, 0px)));
+    min-height: 420px;
     background: var(--egpf-bg, #F8F6F6);
     overflow: hidden;
   }
@@ -254,6 +306,8 @@
   .egpf__arrow[disabled] { opacity: 0 !important; pointer-events: none; }
   .egpf__arrow--prev { left: 1.25rem; }
   .egpf__arrow--next { right: 1.25rem; }
+  /* 3-across: keep the next arrow on the middle photo, clear of the buy card */
+  @media (min-width: 750px) { .egpf--many .egpf__arrow--next { right: auto; left: calc(66.6667% - 3.85rem); } }
 
   /* Small thumbnails, bottom left, active one underlined (Hermès) */
   .egpf__thumbs {
@@ -289,6 +343,8 @@
     background: #FCFAF7;
   }
   .egpf__vendor { margin: 0 0 .5rem; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; opacity: .55; }
+  .egpf__by { margin: -.6rem 0 1rem; font-size: .8rem; color: rgba(26,26,26,.7); }
+  .egpf__by a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .egpf__title { margin: 0 0 1rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-weight: 400; font-size: clamp(1.2rem, 1.6vw, 1.7rem); line-height: 1.2; }
   .egpf__option { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
   .egpf__label {
@@ -337,6 +393,12 @@
   .egpf__story-title { margin: 0 0 1rem; font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-style: italic; font-weight: 400; font-size: clamp(1.8rem, 2.6vw, 2.4rem); }
   .egpf__story-text, .egpf__story-quote { font-family: var(--eg-serif, 'Cormorant Garamond', serif); font-style: italic; font-size: clamp(1.1rem, 1.5vw, 1.35rem); line-height: 1.5; }
   .egpf__story-quote { margin-top: 1.25rem; opacity: .8; }
+  .egpf__story-name { margin: 0 0 .75rem; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+  .egpf__story-link {
+    display: inline-block; margin-top: 1.75rem; padding-bottom: .25rem; border-bottom: 1px solid currentColor;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+    color: #1a1a1a; text-decoration: none;
+  }
   .egpf__crumbs {
     display: flex; justify-content: center; gap: .6rem; padding: 2rem 1rem 3rem;
     font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(26,26,26,.7);
@@ -345,7 +407,7 @@
 
   /* Sticky bar that appears once the buy box scrolls away (Hermès) */
   .egpf__sticky {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+    position: fixed; left: 0; right: 0; bottom: var(--egpf-pbar, 0px); z-index: 900;
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     padding: .7rem var(--eg-gutter, 1.5rem); background: #FCFAF7; box-shadow: 0 -1px 0 rgba(26,26,26,.08);
     transform: translateY(110%); transition: transform .35s ease;
@@ -355,7 +417,8 @@
   .egpf__sticky-img { width: 40px; height: 52px; object-fit: cover; display: block; }
   .egpf__sticky-title { margin: 0; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .egpf__sticky-price { margin: 0; font-size: .8rem; opacity: .75; }
-  .egpf__sticky-add { width: auto; min-width: 210px; }
+  .egpf__sticky-form { flex: 0 0 auto; width: min(380px, 50vw); }
+  .egpf__sticky-add { width: 100%; }
 
   /* Zoom view */
   .egpf__zoom { position: fixed; inset: 0; z-index: 1000; background: #fff; }
@@ -384,7 +447,7 @@
   .egpf__zoom-item img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .2s ease; transform-origin: 50% 50%; }
   .egpf__zoom-item.is-zoomed img { cursor: grab; }
   .egpf__zoom-thumbs {
-    position: fixed; left: 1.25rem; bottom: 1.25rem; z-index: 3;
+    position: fixed; left: 1.25rem; bottom: calc(1.25rem + var(--egpf-pbar, 0px)); z-index: 3;
     display: flex; gap: .35rem; padding: 0 0 7px; background: transparent;
     max-width: calc(100% - 2.5rem); overflow-x: auto;
   }
@@ -410,8 +473,12 @@
     }
     .egpf__back { top: .75rem; left: .75rem; }
     .egpf__below { grid-template-columns: 1fr; gap: 1.25rem; padding: 2rem 1rem; }
-    .egpf__sticky-add { min-width: 0; }
-    .egpf__sticky-title { max-width: 45vw; }
+    /* small windows: like Hermès, the bar is always there with Apple Pay + Add to cart */
+    .egpf__sticky { padding: .6rem .75rem; }
+    .egpf__sticky-info { display: none; }
+    .egpf__sticky-form { width: 100%; }
+    .egpf__actions--two { grid-template-columns: 1fr 1fr; }
+    #egpf-{{ section.id }} { padding-bottom: 72px; }
     .egpf__zoomctl { left: .5rem; }
     .egpf__zoomrange { height: 22vh; }
   }
@@ -444,27 +511,51 @@
       if (top > 0 && top < 400) root.style.setProperty('--egpf-header', top + 'px');
     }
     setHeader(); window.addEventListener('resize', setHeader);
+    /* Shopify's black preview bar (only shown in previews) covers the bottom of the
+       screen; measure it so the small photos and buttons stay visible above it */
+    function setPreviewBar() {
+      var bar = document.querySelector('#PBarNextFrameWrapper, #preview-bar-iframe, [id^="PBar"]');
+      var h = 0;
+      if (bar) {
+        var r = bar.getBoundingClientRect();
+        if (getComputedStyle(bar).display !== 'none' && r.height > 0 && r.top < window.innerHeight) h = Math.round(window.innerHeight - r.top);
+      }
+      document.documentElement.style.setProperty('--egpf-pbar', Math.max(0, Math.min(h, 120)) + 'px');
+    }
+    setPreviewBar(); setInterval(setPreviewBar, 1000); window.addEventListener('resize', setPreviewBar);
     var pos = 0;      /* index of the photo in the left frame */
     var current = 0;  /* index of the photo the shopper picked */
 
     function money(cents) { return moneyFormat.replace(/\{\{\s*\w+\s*\}\}/, (cents / 100).toFixed(2)); }
-    function maxPos() { return mq.matches ? Math.max(0, count - 1) : (many ? Math.max(0, count - 2) : 0); }
+    /* 3+ photos: the strip never moves past the last 3, so 3 whole photos always show */
+    function maxPos() { return mq.matches ? Math.max(0, count - 1) : (many ? Math.max(0, count - 3) : 0); }
     function markThumb(i) {
       thumbs.forEach(function (t) { t.classList.toggle('is-active', Number(t.dataset.egpfThumb) === i); });
       var a = thumbs[i];
       if (a && a.parentNode) a.parentNode.scrollTo({ left: a.offsetLeft - a.parentNode.clientWidth / 2, behavior: 'smooth' });
     }
+    /* Load the photos in view plus the next few now, so a shifted frame is never blank */
+    function warm() {
+      for (var k = Math.max(0, pos - 1); k <= Math.min(count - 1, pos + 4); k++) {
+        var im = slots[k] && slots[k].querySelector('img');
+        if (im && im.loading === 'lazy') im.loading = 'eager';
+      }
+    }
     function applyPos() {
-      if (mq.matches) { stage.scrollTo({ left: pos * stage.clientWidth, behavior: 'smooth' }); }
-      else if (many) {
-        var w = slots[0] ? slots[0].getBoundingClientRect().width : 0;
-        track.style.transform = 'translateX(' + (-pos * w) + 'px)';
+      if (mq.matches) {
+        track.style.transform = '';
+        stage.scrollTo({ left: pos * stage.clientWidth, behavior: 'smooth' });
+      } else {
+        /* desktop: no leftover sideways scroll from the phone layout, and move by exact thirds */
+        if (stage.scrollLeft) stage.scrollLeft = 0;
+        track.style.transform = many ? 'translateX(' + (-pos * 100 / 3) + '%)' : '';
       }
       if (prevBtn) prevBtn.disabled = pos <= 0;
       if (nextBtn) nextBtn.disabled = pos >= maxPos();
+      warm();
     }
-    /* Show photo i: on desktop it lands in the RIGHT frame with the one before it on the left
-       (click the 3rd -> 2nd and 3rd, the 1st slides out). */
+    /* Show photo i: on desktop the strip shifts so photo i comes into the open frames with the
+       one before it on its left (click the 3rd -> 2nd and 3rd, the 1st slides out). */
     function show(i) {
       if (!count) return;
       i = Math.max(0, Math.min(i, count - 1));
@@ -513,6 +604,9 @@
         idInput.value = v.id;
         if (priceEl) priceEl.textContent = money(v.price);
         var sp = document.querySelector('[data-egpf-sticky-price]'); if (sp) sp.textContent = money(v.price);
+        var sid = document.querySelector('[data-egpf-sticky-id]'); if (sid) sid.value = v.id;
+        var sb = document.querySelector('[data-egpf-sticky-add]'); if (sb) sb.disabled = !v.available;
+        var sl = document.querySelector('[data-egpf-sticky-label]'); if (sl) sl.textContent = v.available ? 'Add to cart' : 'Sold out';
         var sk = root.querySelector('[data-egpf-sku]'); if (sk) sk.textContent = v.sku || '';
         if (addBtn) { addBtn.disabled = !v.available; }
         if (addLabel) { addLabel.textContent = v.available ? 'Add to cart' : 'Sold out'; }
@@ -602,15 +696,23 @@
     var buy = root.querySelector('.egpf__buy');
     if (sticky && buy && 'IntersectionObserver' in window) {
       document.body.appendChild(sticky);
-      new IntersectionObserver(function (entries) {
-        var off = !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0;
-        sticky.classList.toggle('is-visible', off);
-        sticky.setAttribute('aria-hidden', off ? 'false' : 'true');
-        var b = sticky.querySelector('[data-egpf-sticky-add]'); if (b) b.tabIndex = off ? 0 : -1;
-      }).observe(buy);
-      sticky.querySelector('[data-egpf-sticky-add]').addEventListener('click', function () {
-        if (addBtn && !addBtn.disabled) addBtn.click();
-      });
+      /* Show the bar whenever the card's own Add to cart button is not fully on screen:
+         small or short windows, scrolled past, or hidden under Shopify's preview strip */
+      var buyBtn = buy.querySelector('[name="add"], button[type="submit"]') || buy;
+      function updateSticky() {
+        var r = buyBtn.getBoundingClientRect();
+        var pb = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--egpf-pbar')) || 0;
+        var seen = r.height > 0 && r.top >= 0 && r.bottom <= window.innerHeight - pb;
+        var on = mq.matches || !seen;
+        sticky.classList.toggle('is-visible', on);
+        sticky.setAttribute('aria-hidden', on ? 'false' : 'true');
+        var b = sticky.querySelector('[data-egpf-sticky-add]'); if (b) b.tabIndex = on ? 0 : -1;
+      }
+      window.addEventListener('scroll', updateSticky, { passive: true });
+      window.addEventListener('resize', updateSticky);
+      setInterval(updateSticky, 1000);
+      if (mq.addEventListener) mq.addEventListener('change', updateSticky);
+      updateSticky();
     }
 
     /* Back: return to the previous page if it was on this store, otherwise the collection */
@@ -639,7 +741,8 @@
     { "type": "checkbox", "id": "show_description", "label": "Show description under the frame", "default": true },
     { "type": "url", "id": "contact_url", "label": "Contact Customer Service link" },
     { "type": "checkbox", "id": "show_story", "label": "Show the artisan's story below (from the product's Artisan)", "default": true },
-    { "type": "text", "id": "story_heading", "label": "Story heading", "default": "The story behind" }
+    { "type": "text", "id": "story_heading", "label": "Story heading", "default": "The story behind" },
+    { "type": "checkbox", "id": "story_first_paragraph", "label": "Show only the first paragraph of the story", "default": true }
   ]
 }
 {% endschema %}
