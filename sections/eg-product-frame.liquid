@@ -316,7 +316,8 @@
   .egpf__arrow--prev { left: 1.25rem; }
   .egpf__arrow--next { right: 1.25rem; }
   /* 3-across: keep the next arrow on the middle photo, clear of the buy card */
-  @media (min-width: 750px) { .egpf--many .egpf__arrow--next { right: auto; left: calc(66.6667% - 3.85rem); } }
+  /* 3-across: arrows on the page edges, raised so the right one clears the buy card */
+  @media (min-width: 750px) { .egpf--many .egpf__arrow { top: 32%; } }
 
   /* Small thumbnails, bottom left, active one underlined (Hermès) */
   .egpf__thumbs {
